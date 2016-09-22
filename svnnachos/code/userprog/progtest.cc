@@ -14,6 +14,9 @@
 #include "addrspace.h"
 #include "synch.h"
 
+#ifdef CHANGED 
+#include <string.h>
+#endif //CHANGED
 //----------------------------------------------------------------------
 // StartProcess
 //      Run a user program.  Open the executable, load it into
@@ -79,24 +82,44 @@ WriteDoneHandler (void *arg)
 void
 ConsoleTest (const char *in, const char *out)
 {
-    char ch;
+  char ch;
 
-    readAvail = new Semaphore ("read avail", 0);
-    writeDone = new Semaphore ("write done", 0);
-    console = new Console (in, out, ReadAvailHandler, WriteDoneHandler, 0);
-
-    for (;;)
-      {
-	  readAvail->P ();	// wait for character to arrive
-	  ch = console->GetChar ();
-	  console->PutChar (ch);	// echo it!
-	  writeDone->P ();	// wait for write to finish
-	  if (ch == 'q') {
-	      printf ("Nothing more, bye!\n");
-	      break;		// if q, quit
-	  }
+  readAvail = new Semaphore ("read avail", 0);
+  writeDone = new Semaphore ("write done", 0);
+  console = new Console (in, out, ReadAvailHandler, WriteDoneHandler, 0);
+  
+#ifdef CHANGED
+  
+  for (;;)
+    {
+      readAvail->P ();	// wait for character to arrive
+      ch = console->GetChar ();
+      if (ch != '\n'){
+	console -> PutChar ('<');
+	writeDone->P ();
       }
-    delete console;
-    delete readAvail;
-    delete writeDone;
+      console->PutChar (ch);	// echo it!
+      writeDone->P ();	// wait for write to finish
+      if (ch != '\n'){
+	console -> PutChar ('>');
+	writeDone->P ();
+    }
+      if (ch == EOF || ch=='q') {
+        in = "au revoir\n";
+	for (int i=0; i < strlen(in); i++){
+	  ch = in[i];
+	  console->PutChar (ch);
+	  writeDone->P ();
+	  
+	}
+	//printf ("Nothing more, bye!\n");
+	break;		// if q, quit
+      }
+    }
+    
+#endif //CHANGED
+    
+  delete console;
+  delete readAvail;
+  delete writeDone;
 }
