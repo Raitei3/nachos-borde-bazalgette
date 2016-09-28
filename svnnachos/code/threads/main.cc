@@ -1,4 +1,4 @@
-// main.cc 
+// main.cc
 //      Bootstrap code to initialize the operating system kernel.
 //
 //      Allows direct calls into internal operating system functions,
@@ -9,7 +9,7 @@
 //      Most of this file is not needed until later assignments.
 //
 // Copyright (c) 1992-1993 The Regents of the University of California.
-// All rights reserved.  See copyright.h for copyright notice and limitation 
+// All rights reserved.  See copyright.h for copyright notice and limitation
 // of liability and disclaimer of warranty provisions.
 
 #define MAIN
@@ -21,8 +21,8 @@
 
 #ifdef USER_PROGRAM
 #include "progtest.h"
+#include "synchconsole.h"
 #endif
-
 
 // External functions used by this file
 
@@ -32,14 +32,14 @@ extern void MailTest (int networkID);
 
 //----------------------------------------------------------------------
 // main
-//      Bootstrap the operating system kernel.  
-//      
+//      Bootstrap the operating system kernel.
+//
 //      Check command line arguments
 //      Initialize data structures
 //      (optionally) Call test procedure
 //
 //      "argc" is the number of command line arguments (including the name
-//              of the command) -- ex: "nachos -d +" -> argc = 3 
+//              of the command) -- ex: "nachos -d +" -> argc = 3
 //      "argv" is an array of strings, one for each command line argument
 //              ex: "nachos -d +" -> argv = {"nachos", "-d", "+"}
 //----------------------------------------------------------------------
@@ -47,7 +47,7 @@ extern void MailTest (int networkID);
 int
 main (int argc, char **argv)
 {
-    int argCount;		// the number of arguments 
+    int argCount;		// the number of arguments
     // for a particular command
 
     if (argc > 1 && !strcmp (argv[1], "-h")) // print help
@@ -130,6 +130,26 @@ main (int argc, char **argv)
 		      argCount = 3;
 		  }
 	    }
+
+#ifdef CHANGED
+//#ifdef SYNCHCONSOLE
+    if (!strcmp (*argv, "-sc"))
+        {
+            printf("etape 1\n");
+            if (argc == 1)
+                synchConsoleTest (NULL, NULL);
+            else
+              {
+                  ASSERT (argc > 2);
+                  synchConsoleTest (*(argv + 1), *(argv + 2));
+                  argCount = 3;
+              }
+            }
+
+//#endif // SYNCHCONSOLE
+#endif // CHANGED*/
+
+
 #endif // USER_PROGRAM
 #ifdef FILESYS
 	  if (!strcmp (*argv, "-cp"))
@@ -168,15 +188,17 @@ main (int argc, char **argv)
 	    {
 		ASSERT (argc > 1);
 		Delay (2);	// delay for 2 seconds
-		// to give the user time to 
+		// to give the user time to
 		// start up another nachos
 		MailTest (atoi (*(argv + 1)));
 		argCount = 2;
 	    }
 #endif // NETWORK
+
+
       }
 
-    currentThread->Finish ();	// NOTE: if the procedure "main" 
+    currentThread->Finish ();	// NOTE: if the procedure "main"
     // returns, then the program "nachos"
     // will exit (as any other normal program
     // would).  But there may be other

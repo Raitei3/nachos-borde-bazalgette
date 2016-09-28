@@ -1,11 +1,11 @@
-// progtest.cc 
+// progtest.cc
 //      Test routines for demonstrating that Nachos can load
-//      a user program and execute it.  
+//      a user program and execute it.
 //
 //      Also, routines for testing the Console hardware device.
 //
 // Copyright (c) 1992-1993 The Regents of the University of California.
-// All rights reserved.  See copyright.h for copyright notice and limitation 
+// All rights reserved.  See copyright.h for copyright notice and limitation
 // of liability and disclaimer of warranty provisions.
 
 #include "copyright.h"
@@ -14,7 +14,8 @@
 #include "addrspace.h"
 #include "synch.h"
 
-#ifdef CHANGED 
+#ifdef CHANGED
+#include "synchconsole.h"
 #include <string.h>
 #endif //CHANGED
 //----------------------------------------------------------------------
@@ -87,9 +88,9 @@ ConsoleTest (const char *in, const char *out)
   readAvail = new Semaphore ("read avail", 0);
   writeDone = new Semaphore ("write done", 0);
   console = new Console (in, out, ReadAvailHandler, WriteDoneHandler, 0);
-  
-#ifdef CHANGED
-  
+
+#ifdef CHANGED //partie 2
+
   for (;;)
     {
       readAvail->P ();	// wait for character to arrive
@@ -110,16 +111,37 @@ ConsoleTest (const char *in, const char *out)
 	  ch = in[i];
 	  console->PutChar (ch);
 	  writeDone->P ();
-	  
+
 	}
 	//printf ("Nothing more, bye!\n");
 	break;		// if q, quit
       }
     }
-    
+
 #endif //CHANGED
-    
+
   delete console;
   delete readAvail;
   delete writeDone;
 }
+
+
+#ifdef CHANGED // partie
+
+void
+synchConsoleTest (const char * in, const char * out)
+{
+  printf("je me lance \n");
+  char ch;
+
+  SynchConsole* testsynchconsole = new SynchConsole(in, out);
+
+  while ((ch = testsynchconsole->SynchGetChar()) != EOF)
+  testsynchconsole->SynchPutChar(ch);
+
+  fprintf(stderr, "EOF detected in SynchConsole!\n");
+
+  delete testsynchconsole;
+}
+
+#endif //CHANGED
