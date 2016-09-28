@@ -34,8 +34,18 @@ SynchConsole::~SynchConsole()
 }
 void SynchConsole::SynchPutChar(int ch)
 {
+   if (ch != '\n')
+   {
+   console -> PutChar('<');
+   writeDone -> P();
+   }
    console -> PutChar(ch);
    writeDone -> P();
+   if (ch != '\n')
+   {
+   console -> PutChar('>');
+   writeDone -> P();
+   }
 }
 
 int SynchConsole::SynchGetChar()
