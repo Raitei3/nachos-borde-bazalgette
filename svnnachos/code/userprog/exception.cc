@@ -75,13 +75,21 @@ ExceptionHandler (ExceptionType which)
           {
 	    switch (type)
 	      {
-		case SC_Halt:
+	      case SC_Halt:
 		  {
 		    DEBUG ('s', "Shutdown, initiated by user program.\n");
 		    interrupt->Halt ();
 		    break;
 		  }
-		default:
+#ifdef CHANGED
+	      case SC_PutChar:
+		{
+		  DEBUG ('s', "call PutChar.\n");
+		  synchconsole -> SynchPutChar(machine->ReadRegister(4));
+		  break;
+		}
+#endif //CHANGED
+	      default:
 		  {
 		    printf("Unimplemented system call %d\n", type);
 		    ASSERT(FALSE);

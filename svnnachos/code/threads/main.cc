@@ -19,9 +19,11 @@
 #include "utility.h"
 #include "system.h"
 
+#ifdef CHANGED
 #ifdef USER_PROGRAM
 #include "progtest.h"
 #include "synchconsole.h"
+#endif
 #endif
 
 // External functions used by this file
@@ -116,6 +118,9 @@ main (int argc, char **argv)
 	  if (!strcmp (*argv, "-x"))
 	    {			// run a user program
 		ASSERT (argc > 1);
+#ifdef CHANGED
+		synchconsole = new SynchConsole(NULL,NULL);
+#endif
 		StartProcess (*(argv + 1));
 		argCount = 2;
 	    }
@@ -132,7 +137,7 @@ main (int argc, char **argv)
 	    }
 
 #ifdef CHANGED
-//#ifdef SYNCHCONSOLE
+	  //#ifdef SYNCHCONSOLE
     if (!strcmp (*argv, "-sc"))
         {
             printf("etape 1\n");
@@ -146,7 +151,7 @@ main (int argc, char **argv)
               }
             }
 
-//#endif // SYNCHCONSOLE
+    //#endif // SYNCHCONSOLE
 #endif // CHANGED*/
 
 
