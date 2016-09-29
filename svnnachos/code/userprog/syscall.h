@@ -32,7 +32,18 @@
 #define SC_Fork		9
 #define SC_Yield	10
 
+#ifdef CHANGED
+#define SC_PutChar      11
+#endif //CHANGED
+
 #ifdef IN_USER_MODE
+
+
+#ifdef CHANGED
+void PutChar(char c);
+
+#endif //CHANGED
+
 
 // LB: This part is read only on compiling the test/*.c files.
 // It is *not* read on compiling test/start.S
