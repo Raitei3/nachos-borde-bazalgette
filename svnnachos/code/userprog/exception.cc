@@ -92,12 +92,16 @@ ExceptionHandler (ExceptionType which)
               case SC_PutString:
               {
                 DEBUG ('s', "call PutString.\n");
-                printf("1\n");
-                char* to;
+                char to[MAX_STRING_SIZE];
                 machine -> copyStringFromMachine(machine -> ReadRegister(4), to , MAX_STRING_SIZE);
-                printf("2\n");
                 synchconsole -> SynchPutString(to);
                 break;
+              }
+              case SC_Exit:
+              {
+                DEBUG ('s', "Shutdown, initiated auto\n");
+		            interrupt->Halt ();
+		            break;
               }
 
       #endif //CHANGED

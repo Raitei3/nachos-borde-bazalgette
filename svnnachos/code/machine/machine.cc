@@ -221,15 +221,22 @@ void Machine::WriteRegister(int num, int value)
 
 		#ifdef CHANGED
 
-		int copyStringFromMachine(int from, char *to, unsigned size){
-			unsigned i = 0;
+		int Machine::copyStringFromMachine(int from, char *to, unsigned size){
+
+      // que faire en cas de chaine trop longue???
 			int value;
-			while ((i < size-1) || (to[i-1] != '\0')){
+      unsigned i=0;
+      do{
+      //  printf("%d\n",size);
+      //  printf("%d\n",i);
 				machine -> ReadMem(from,1,&value);
-				to[i]=(char)value;
+        char s = (char)value;
+				to[i]=s;
 				from++;
-				i++;
-			}
+        i++;
+      //  printf("%c\n",to[i-1]);
+      }while ((i < size) && (to[i-1] != '\0'));
+
 			to[i] = '\0';
 			return i;
 
