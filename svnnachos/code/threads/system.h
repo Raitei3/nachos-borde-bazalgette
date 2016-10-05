@@ -1,8 +1,8 @@
-// system.h 
+// system.h
 //      All global variables used in Nachos are defined here.
 //
 // Copyright (c) 1992-1993 The Regents of the University of California.
-// All rights reserved.  See copyright.h for copyright notice and limitation 
+// All rights reserved.  See copyright.h for copyright notice and limitation
 // of liability and disclaimer of warranty provisions.
 
 #ifndef SYSTEM_H
@@ -15,6 +15,12 @@
 #include "interrupt.h"
 #include "stats.h"
 #include "timer.h"
+
+#ifdef CHANGED
+
+#define MAX_STRING_SIZE 10
+
+#endif //CHANGED
 
 // Initialization and cleanup routines
 extern void Initialize (int argc, char **argv);	// Initialization,
