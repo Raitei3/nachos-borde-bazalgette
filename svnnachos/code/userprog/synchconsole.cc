@@ -34,18 +34,8 @@ SynchConsole::~SynchConsole()
 }
 void SynchConsole::SynchPutChar(int ch)
 {
-   if (ch != '\n')
-   {
-   console -> PutChar('<');
-   writeDone -> P();
-   }
    console -> PutChar(ch);
    writeDone -> P();
-   if (ch != '\n')
-   {
-   console -> PutChar('>');
-   writeDone -> P();
-   }
 }
 
 int SynchConsole::SynchGetChar()
@@ -66,7 +56,10 @@ void SynchConsole::SynchPutString(const char s[])
 
 void SynchConsole::SynchGetString(char * s, int n)
 {
-// ...
+  for (int i=0; i<n; i++) {
+    readAvail->P();
+    s[i] = console->GetChar();
+  }
 }
 
 

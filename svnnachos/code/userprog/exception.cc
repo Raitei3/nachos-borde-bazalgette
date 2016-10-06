@@ -104,6 +104,26 @@ ExceptionHandler (ExceptionType which)
 		            break;
               }
 
+	      case SC_GetChar:
+		{
+		  DEBUG ('s', "call GetChar.\n");
+		  char s;
+		  s = synchconsole -> SynchGetChar();
+		  machine -> WriteRegister(2,s);
+		  break;
+		}
+
+	      case SC_GetString:
+	       	  DEBUG ('s', "call GetString.\n");
+		  int x;
+		  char* s;
+		  synchconsole -> SynchGetString(s, MAX_STRING_SIZE);
+		  x = (int*)s;
+		  machine -> WriteRegister(2,x);
+		  break;
+
+
+	      
       #endif //CHANGED
 
 	      default:
