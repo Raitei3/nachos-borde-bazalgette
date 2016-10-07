@@ -113,17 +113,19 @@ ExceptionHandler (ExceptionType which)
 		  break;
 		}
 
-	      case SC_GetString:
+	     case SC_GetString:
+      {
 	       	  DEBUG ('s', "call GetString.\n");
-		  int x;
-		  char* s;
+		  char s[MAX_STRING_SIZE];
 		  synchconsole -> SynchGetString(s, MAX_STRING_SIZE);
-		  x = (int*)s;
-		  machine -> WriteRegister(2,x);
+		  machine -> copyStringToMachine(machine -> ReadRegister(4),s,MAX_STRING_SIZE);
+		  machine -> WriteRegister(2,machine -> ReadRegister(4));
 		  break;
+      }
 
 
-	      
+
+
       #endif //CHANGED
 
 	      default:

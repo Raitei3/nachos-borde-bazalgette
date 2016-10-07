@@ -115,6 +115,7 @@ class Machine:dontcopythis {
 
 #ifdef CHANGED
 		int copyStringFromMachine(int from, char* to, unsigned size);
+		int copyStringToMachine(int from, char *to, unsigned size);
 #endif
 
 // Routines callable by the Nachos kernel

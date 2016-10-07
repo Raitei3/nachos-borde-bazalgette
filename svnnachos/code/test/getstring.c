@@ -4,7 +4,8 @@
 
 int main()
 {
-  char* s = GetString();
+  char s[10];
+  GetString(s,10);
   PutString(s);
   return 0;
 }

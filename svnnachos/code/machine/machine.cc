@@ -241,4 +241,21 @@ void Machine::WriteRegister(int num, int value)
 			return i;
 
 		}
+
+		int Machine::copyStringToMachine(int from, char *to, unsigned size)
+		{
+			int value = 0;
+			unsigned i=0;
+			do
+			{
+				printf("%d\n",i );
+				value = to[i];
+				machine -> WriteMem(from,1,value);
+				i++;
+				from++;
+			} while (i < size && to[i-1]!='\0');
+			return i;
+		}
+
+
 		#endif //CHANGED

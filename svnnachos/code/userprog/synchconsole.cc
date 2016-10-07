@@ -56,10 +56,14 @@ void SynchConsole::SynchPutString(const char s[])
 
 void SynchConsole::SynchGetString(char * s, int n)
 {
-  for (int i=0; i<n; i++) {
+  //printf("SynchGetString\n");
+  int i=0;
+  do{
     readAvail->P();
     s[i] = console->GetChar();
-  }
+    i++;
+  }while ((i < n-1) && (s[i-1]!='\n') && (s[i-1]!='\0'));
+  s[i]='\0';
 }
 
 

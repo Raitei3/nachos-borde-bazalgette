@@ -2,7 +2,8 @@
 
 int main()
 {
-  char s = GetChar();
+  char s;
+  s = GetChar();
   PutChar(s);
   return 0;
 }
