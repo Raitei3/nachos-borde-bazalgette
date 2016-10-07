@@ -19,9 +19,9 @@
 #include "utility.h"
 #include "system.h"
 
-#ifdef CHANGED
 #ifdef USER_PROGRAM
 #include "progtest.h"
+#ifdef CHANGED
 #include "synchconsole.h"
 #endif
 #endif
@@ -121,7 +121,7 @@ main (int argc, char **argv)
 		ASSERT (argc > 1);
 #ifdef CHANGED
 		synchconsole = new SynchConsole(NULL,NULL);
-#endif
+#endif //CHANGED
 		StartProcess (*(argv + 1));
 		argCount = 2;
 	    }
@@ -138,7 +138,6 @@ main (int argc, char **argv)
 	    }
 
 #ifdef CHANGED
-	  //#ifdef SYNCHCONSOLE
     if (!strcmp (*argv, "-sc"))
         {
             if (argc == 1)
@@ -151,7 +150,6 @@ main (int argc, char **argv)
               }
             }
 
-    //#endif // SYNCHCONSOLE
 #endif // CHANGED*/
 
 
