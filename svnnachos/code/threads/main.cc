@@ -49,6 +49,7 @@ extern void MailTest (int networkID);
 int
 main (int argc, char **argv)
 {
+
     int argCount;		// the number of arguments
     // for a particular command
 
@@ -140,7 +141,6 @@ main (int argc, char **argv)
 	  //#ifdef SYNCHCONSOLE
     if (!strcmp (*argv, "-sc"))
         {
-            printf("etape 1\n");
             if (argc == 1)
                 synchConsoleTest (NULL, NULL);
             else

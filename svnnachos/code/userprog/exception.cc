@@ -119,8 +119,30 @@ ExceptionHandler (ExceptionType which)
 		  char s[MAX_STRING_SIZE];
 		  synchconsole -> SynchGetString(s, MAX_STRING_SIZE);
 		  machine -> copyStringToMachine(machine -> ReadRegister(4),s,MAX_STRING_SIZE);
-		  machine -> WriteRegister(2,machine -> ReadRegister(4));
+		  //machine -> WriteRegister(2,machine -> ReadRegister(4));
 		  break;
+      }
+
+      case SC_GetInt:
+      {
+        DEBUG ('s', "call GetInt.\n");
+        char s[MAX_STRING_SIZE];
+        int value;
+        machine -> ReadMem(machine -> ReadRegister(4),4,&value);
+        snprintf(s,MAX_STRING_SIZE,"%d",value);
+        machine -> copyStringToMachine(machine -> ReadRegister(4),s,MAX_STRING_SIZE);
+        break;
+      }
+
+      case SC_PutInt:
+      {
+        int n[1];
+        char s[MAX_STRING_SIZE];
+        synchconsole -> SynchGetString(s, MAX_STRING_SIZE);
+        sscanf(s,"%d",n);
+        machine -> WriteRegister(4,*n);
+        printf("%d\n",machine -> ReadRegister(4) );
+        break;
       }
 
 

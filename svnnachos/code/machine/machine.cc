@@ -248,7 +248,7 @@ void Machine::WriteRegister(int num, int value)
 			unsigned i=0;
 			do
 			{
-				printf("%d\n",i );
+			//	printf("%d\n",i );
 				value = to[i];
 				machine -> WriteMem(from,1,value);
 				i++;
