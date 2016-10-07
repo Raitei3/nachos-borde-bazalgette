@@ -107,7 +107,7 @@ ConsoleTest (const char *in, const char *out)
     }
       if (ch == EOF || ch=='q') {
         in = "au revoir\n";
-	for (int i=0; i < strlen(in); i++){
+	for (unsigned i=0; i < strlen(in); i++){
 	  ch = in[i];
 	  console->PutChar (ch);
 	  writeDone->P ();
