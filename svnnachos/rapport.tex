@@ -25,10 +25,19 @@ L'objectif de ce TP était d'ajouter quelques appels systèmes à NACHOS.
 \newline
 Pour pouvoir travailler en binôme efficacement, nous avons mis en place un dépot git possédant plusieurs branches, de manière à ce que chacun possède une version du projet personnelle, qu'il pourra modifier à son bon vouloir.
 \newline
+\subsection{Découverte du projet}
 Nous avons commencé par découvrir le projet avec la partie II. Nous devions modifier légèrement le code de manière à comprendre comment Nachos gère ses entrées et ses sorties.
 Nous avons appris l'existence de sémaphores, dont le rôle est primordial pour le bon fonctionnement de la console.
-L'un des sémaphores intervient lorque l'on veut écrire sur la console, 
-Ce fonctionnement étant asynchrone et assez primitif, nous l'avons amélioré dans la partie III, dont le but était d'implémenter une couche d'entrées/sorties synchrones.
+L'un des sémaphores intervient lorsque l'on veut écrire sur la console, en assurant que la requête précédente soit terminée. L'autre sémaphore intervient lorsqu'on veut lire, en assurant qu'il y a quelque chose à lire.
+\subsection{Mise en place d'une console synchrone}
+Ce fonctionnement étant asynchrone et assez primitif, nous l'avons amélioré dans la partie III, dont le but était d'implémenter une couche d'entrées/sorties synchrones. Nous devions donc créer une console synchronisée qui communique entre l'utilisateur et la console asynchrone. 
+Dans cette partie, nous devions implémenter deux fonctions permettant de communiquer caractère par caractère. Nous avons donc fait appel aux fonctions PutChar et GetChar de la classe Console, tout en nous servant des sémaphores.
+\newline
+\subsection{Ajout d'un appel système}
+Une fois que notre console synchrone fut testée et approuvée, nous nous sommes attaqués à la partie IV dans laquelle il nous était demandé d'implémenter l'appel système PutChar.
+Nous avons tout d'abord édité le fichier syscall.h pour ajouter Putchar dans la liste des appels systèmes valides, et ajouter la définition de la fonction utilisateur correspondante. Nous avons par la suite modifié le fichier assembleur start.S pour ajouter la définition de PutChar.
+Enfin, dans le fichier exception.cc, nous avons implémenté le fonctionnement de notre appel système grâce à notre console synchrone. Putchar appelle la fonction de la console synchrone SynchPutChar, qui pousse sur la sortie un caractère récupéré dans la registre 4 (à détailler)
+
 
 \section {Points Délicats}
 
