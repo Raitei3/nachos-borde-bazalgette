@@ -233,10 +233,7 @@ void Machine::WriteRegister(int num, int value)
         i++;
       }while ((i < size) && (to[i-1] != '\0'));
 
-			//if (to[i-1] != '\0')
-		//	{
 				to[i] = '\0';
-		//	}
 				return i;
 		}
 
