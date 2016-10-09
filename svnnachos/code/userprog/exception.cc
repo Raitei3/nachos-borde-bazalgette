@@ -87,59 +87,59 @@ ExceptionHandler (ExceptionType which)
         case SC_Exit:
         {
           DEBUG ('s', "Shutdown, initiated auto\n");
-          int ret = machine -> ReadRegister(4); //on récupere la valeur de retour de main
+          int ret = machine -> ReadRegister(4); //on récupère la valeur de retour de main
           printf("Exit(%d)\n",ret);
-          interrupt->Halt ();                   // et on utilise simplement halt ()
+          interrupt->Halt ();                   //et on utilise simplement Halt()
           break;
         }
 
         case SC_PutChar:
         {
           DEBUG ('s', "call PutChar.\n");
-          synchconsole -> SynchPutChar(machine->ReadRegister(4)); //on récupere simplement me parametre de l'appel System
-          break;                                                 //et on l'envoit à notre synchconsole.
+          synchconsole -> SynchPutChar(machine->ReadRegister(4)); //on récupère simplement le parametre de l'appel système
+          break;                                                  //et on l'envoie à notre synchconsole.
         }
 
         case SC_GetChar:
         {
           DEBUG ('s', "call GetChar.\n");
           char s;
-          s = synchconsole -> SynchGetChar(); // on récupere le caractere grace à la synchconsole
-          machine -> WriteRegister(2,s);      // et on l'écrit dans le registre 2 valeur de retour de l'appel systeme.
+          s = synchconsole -> SynchGetChar(); //on récupère le caractère grâce à la synchconsole
+          machine -> WriteRegister(2,s);      //et on l'écrit dans le registre 2, valeur de retour de l'appel système.
           break;
         }
 
         case SC_PutString:
         {
           DEBUG ('s', "call PutString.\n");
-          int from = machine -> ReadRegister(4);     //on recupere l'adresse de la chaine
+          int from = machine -> ReadRegister(4);     //on recupère l'adresse de la chaine
           char to[MAX_STRING_SIZE];                  //on créer notre tampon
           while (machine -> copyStringFromMachine(from, to , MAX_STRING_SIZE) == MAX_STRING_SIZE )    //on remplit le tampon
           {                                                   //on recommence tant qu'on utilise tout le buffer
-            synchconsole -> SynchPutString(to);                         //et on envoit le tampon a la console.
+            synchconsole -> SynchPutString(to);                         //et on envoie le tampon à la console.
             from += MAX_STRING_SIZE-1;
           }
           synchconsole -> SynchPutString(to);
           break;
         }
 
-        /** Comme pour fgets on prendra soin de s'arreter en de \n et de n'écrire que
-        *   size-1 charactere de la chaine.
+        /** Comme pour fgets on prendra soin de s'arreter lorsqu'on rencontre \n et de n'écrire que
+        *   size-1 caractères de la chaine.
         **/
 
         case SC_GetString:
         {
           DEBUG ('s', "call GetString.\n");
           char s[MAX_STRING_SIZE];
-          int size = machine -> ReadRegister(5);  // on recupere les parametre de l'appel
+          int size = machine -> ReadRegister(5);  //on recupère les paramètres de l'appel
           int from = machine -> ReadRegister(4);
           int i=0 , j=MAX_STRING_SIZE-1;
-          while(size / MAX_STRING_SIZE > 0 && j == MAX_STRING_SIZE-1) //on compare la taille du buffer avec celle
-          {                                                        // de size pour savoir quand on doit s'arreter
-            synchconsole -> SynchGetString(s, MAX_STRING_SIZE);     // ou le nombre de cractere retourné pour savoir si la chaine
-                                                                      // c'est finit plus tot.
-            j=machine -> copyStringToMachine(from+i,s,MAX_STRING_SIZE); // on recopie le contenue du buffer a l'adresse du parametre
-            size -= j;                                                   // de l'appelle systeme
+          while(size / MAX_STRING_SIZE > 0 && j == MAX_STRING_SIZE-1)   //on compare la taille du buffer avec celle
+          {                                                             //de size pour savoir quand on doit s'arrêter
+            synchconsole -> SynchGetString(s, MAX_STRING_SIZE);         //ou le nombre de cractere retourné pour savoir si la chaine
+                                                                        //s'est finie plus tôt.
+            j=machine -> copyStringToMachine(from+i,s,MAX_STRING_SIZE); //on recopie le contenu du buffer à l'adresse du paramètre
+            size -= j;                                                  //de l'appel système
             i += j;
           }
           if(j == MAX_STRING_SIZE-1)

@@ -47,8 +47,8 @@ SynchConsole::SynchConsole(const char *in, const char *out) {
   }
 
   void SynchConsole::SynchPutString(const char s[])
-  {//on recherche juste \0 car on le force en amont
-    while (*s != '\0') {      
+  { //on recherche juste '\0' car on le force en amont
+    while (*s != '\0') {
       console -> PutChar(*s);
       writeDone -> P();
       s++;
