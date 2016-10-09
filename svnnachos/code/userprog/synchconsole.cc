@@ -32,6 +32,7 @@ SynchConsole::SynchConsole(const char *in, const char *out) {
     delete writeDone;
     delete readAvail;
   }
+
   void SynchConsole::SynchPutChar(int ch)
   {
     console -> PutChar(ch);
@@ -46,8 +47,8 @@ SynchConsole::SynchConsole(const char *in, const char *out) {
   }
 
   void SynchConsole::SynchPutString(const char s[])
-  {
-    while (*s != '\0') {
+  {//on recherche juste \0 car on le force en amont
+    while (*s != '\0') {      
       console -> PutChar(*s);
       writeDone -> P();
       s++;
@@ -64,10 +65,8 @@ SynchConsole::SynchConsole(const char *in, const char *out) {
         s[i] = console->GetChar();
         i++;
       }while ((i < n-1) && (s[i-1]!='\n') && (s[i-1]!='\0') && (s[i-1] != EOF));
-      /*if(s[i-1]=='\n')
-      s[i]='\0';*/
     }
   }
 
-  
+
   #endif // CHANGED

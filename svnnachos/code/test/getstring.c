@@ -4,7 +4,7 @@
 char s[10];
 int main()
 {
-  GetString(s,256);
+  GetString(s,30);
   PutString(s);
   return 0;
 }
