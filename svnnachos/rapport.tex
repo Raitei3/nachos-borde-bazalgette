@@ -37,24 +37,27 @@ L'un des sémaphores intervient lorsque l'on veut écrire sur la console, en ass
 
 \bigbreak
 \subsection{Mise en place d'une console synchrone}
-Ce fonctionnement étant asynchrone et assez primitif, nous l'avons amélioré dans la partie III, dont le but était d'implémenter une couche d'entrées/sorties synchrones. Nous devions donc créer une console synchronisée qui communique entre l'utilisateur et la console asynchrone.
+Ce fonctionnement étant asynchrone et assez contraignant, nous l'avons amélioré dans la partie III, dont le but était d'implémenter une couche d'entrées/sorties synchrones. Nous devions donc créer une console synchronisée qui communique entre l'utilisateur et la console asynchrone.
 Dans cette partie, nous devions implémenter deux fonctions permettant de communiquer caractère par caractère. Nous avons donc fait appel aux fonctions \textcolor{red2}{PutChar} et \textcolor{red2}{GetChar} de la classe Console, tout en nous servant des sémaphores.
+Il s'agissait là d'une simple encapsulation de méthode afin de nous simplifier le travail plus tard.
 
 \bigbreak
 \subsection{Ajout d'un appel système}
 Une fois que notre console synchrone fut testée et approuvée, nous nous sommes attaqués à la partie IV dans laquelle il nous était demandé d'implémenter l'appel système \textcolor{blue2}{PutChar}.
 Nous avons tout d'abord édité le fichier \textcolor{vert2}{syscall.h} pour ajouter \textcolor{blue2}{PutChar} dans la liste des appels systèmes valides, et ajouter la définition de la fonction utilisateur correspondante.
 Nous avons par la suite modifié le fichier assembleur \textcolor{vert2}{start.S} pour ajouter la définition de \textcolor{blue2}{PutChar}.
-Enfin, dans le fichier \textcolor{vert2}{exception.cc}, nous avons implémenté le fonctionnement de notre appel système grâce à notre console synchrone. \textcolor{blue2}{PutChar} appelle la fonction de la console synchrone \textcolor{red2}{SynchPutChar}, qui pousse sur la sortie un caractère récupéré dans la registre 4 (à détailler)
+Enfin, dans le fichier \textcolor{vert2}{exception.cc}, nous avons implémenté le fonctionnement de notre appel système grâce à notre console synchrone. \textcolor{blue2}{PutChar} appelle la fonction de la console synchrone \textcolor{red2}{SynchPutChar}, qui pousse sur la sortie un caractère récupéré dans le registre 4 qui est le parametre de notre appel systeme.
 
 \bigbreak
 \subsection{Ecriture de chaines de caractères}
 Notre travail dans cette partie était d'améliorer notre console synchrone en lui ajoutant une fonction qui puisse écrire des chaines de caractères. Pour cela nous avons du implémenter une fonction \textcolor{red2}{copyStringFromMachine} qui est similaire à la fonction C \textcolor{red2}{strcpy}. Cette fonction copie une chaine de caractère du monde utilisateur vers le noyau, et fait donc la liaison entre ces deux espaces.
+Ce transfert d'une adresse virtuelle à une adresse physique est nécessaire afin de garantir la sécurité du noyau.
 \newline
-Nous avons d'abord décidé de la placer dans le fichier \textcolor{vert2}{exception.cc}, car c'est la que nous l'appelons. Cependant, nous n'étions pas satisfaits de cet emplacement, c'est pour ça que nous l'avons finalement placée dans \textcolor{vert2}{machine.cc}, tout en en faisant une méthode de la classe Machine. (compléter choix machine.cc + question V.2)
+Nous avons d'abord décidé de la placer dans le fichier \textcolor{vert2}{exception.cc}, car c'est la que nous l'appelons. Cependant, nous n'étions pas satisfaits de cet emplacement, c'est pour ça que nous l'avons finalement placée dans \textcolor{vert2}{machine.cc}, tout en en faisant une méthode de la classe Machine.
+Ce choix nous a parut judicieux car machine inclut translate.h par défaut et qu'il parait logique pour les objet de type de machine de pouvoir utilisé cette fonction.
 \newline
-Nous avons par la suite ajouté l'appel système \textcolor{blue2}{PutString} (de manière analogue à \textcolor{blue2}{PutChar}), qui récupère la chaine de caractères entrée par l'utilisateur via la méthode \textcolor{red2}{copyStringFromMachine}, puis qui appelle la fonction \textcolor{red2}{SynchPutString} de notre console synchrone pour écrire cette chaine. (question V.3)
-Au départ, notre implémentation gérait mal les chaines de caractères trop longues car elle les tronquait si elles étaient plus longues que MAX\_STRING\_SIZE. Nous détaillerons ce problème que nous avons résolu dans la partie suivante. (peut être plus de détails sur le comportement de PutString)
+Nous avons par la suite ajouté l'appel système \textcolor{blue2}{PutString} (de manière analogue à \textcolor{blue2}{PutChar}), qui récupère la chaine de caractères entrée par l'utilisateur via la méthode \textcolor{red2}{copyStringFromMachine}, puis qui appelle la fonction \textcolor{red2}{SynchPutString} de notre console synchrone pour écrire cette chaine.
+Au départ, notre implémentation gérait mal les chaines de caractères trop longues car elle les tronquait si elles étaient plus longues que MAX\_STRING\_SIZE. Nous détaillerons ce problème que nous avons résolu dans la partie suivante.
 
 \bigbreak
 \subsection{Halt automatique et valeur de retour du main}
@@ -64,13 +67,13 @@ Pour prendre en compte la valeur de retour du main, nous avons modifié le code 
 
 \bigbreak
 \subsection{Lecture de chaines de caractères}
-Dans cette partie, nous avons ajouté à notre console synchrone la possibilité de lire des chaines de caractères. Nous avons donc commencé par implémenter l'appel système \textcolor{blue2}{GetChar}. (fin de fichier ??) Nous avons ensuite complété la fonction \textcolor{red2}{SynchGetString} de notre console. Après celà, nous avons ajouté l'appel système \textcolor{blue2}{GetString}, par analogie à \textcolor{blue2}{PutString}, en implémentant une fonction \textcolor{red2}{copyStringToMachine} qui, à l'inverse de \textcolor{red2}{copyStringFromMachine}, copie une chaine du monde noyau vers le monde utilisateur.
+Dans cette partie, nous avons ajouté à notre console synchrone la possibilité de lire des chaines de caractères. Nous avons donc commencé par implémenter l'appel système \textcolor{blue2}{GetChar}. Nous avons ensuite complété la fonction \textcolor{red2}{SynchGetString} de notre console. Après celà, nous avons ajouté l'appel système \textcolor{blue2}{GetString}, par analogie à \textcolor{blue2}{PutString}, en implémentant une fonction \textcolor{red2}{copyStringToMachine} qui, à l'inverse de \textcolor{red2}{copyStringFromMachine}, copie une chaine du monde noyau vers le monde utilisateur.
 \newline
 La consigne précisait qu'il fallait construire \textcolor{blue2}{GetString} sur le modèle de la fonction C \textcolor{red2}{fgets}. Nous avons donc respecté les fonctionalités de \textcolor{red2}{fgets}, comme par exemple le fait que la fonction s'arrête quand elle rencontre un retour chariot. si la longueur de la chaine de caractère qui doit être lue est plus longue que la taille du tampon noyau, on appelle \textcolor{red2}{SynchGetString} autant de fois qu'il faut en réutilisant le tampon. Ainsi, on garantit qu'il n'y ait pas de débordement.
 
 \bigbreak
 \subsection{Avancement du projet}
-Nous avons traité les parties I à VI, excepté la partie VI.4 sur \textcolor{blue2}{PutInt} et \textcolor{blue2}{GetInt}. Nous avons testé tous nos appels systèmes, qui fonctionnent. Nous n'avons pas eu le temps de nous intéresser à la partie VII, qui, vue de loin, nous a semblée assez compliquée. Cependant, celà ne pose pas de problème technique car cette partie est indépendante des autres.
+Nous avons traité les parties I à VI, excepté la partie VI.4 sur \textcolor{blue2}{PutInt} et \textcolor{blue2}{GetInt}. Nous avons testé tous nos appels systèmes, qui fonctionnent. Nous n'avons pas eu le temps de nous intéresser à la partie VII. Cependant, celà ne pose pas de problème technique car cette partie est indépendante des autres.
 
 \bigbreak
 \bigbreak
@@ -79,25 +82,27 @@ La première réelle difficulté que nous avons rencontré était l'implémentat
 \newline
 Un autre problème que nous avons rencontré a été de comprendre comment prendre en compte la valeur de retour du main, car nous ne trouvions pas quel fichier appelait le main. Encore une fois, le problème s'est résolu rapidement quand nous avons trouvé que c'était \textcolor{vert2}{start.S}.
 \newline
-Nous avons également rencontré un problème à la partie VII.4, ou il était demandé d'implémenter les appels système \textcolor{blue2}{PutInt} et \textcolor{blue2}{GetInt}. Nous avons eu du mal à comprendre ce que doivent faire ces appels, et n'avons donc pas fini cette partie par manque de temps. Ce que nous avons essayé de faire se trouve néanmoins en commentaire dans \textcolor{vert2}{exception.cc}.
+Nous avons également rencontré un problème à la partie VII.4, ou il était demandé d'implémenter les appels système \textcolor{blue2}{PutInt} et \textcolor{blue2}{GetInt}. Nous avons eu du mal à comprendre ce que doivent faire ces appels, et n'avons donc pas fini cette partie par manque de temps.
+Nous avons quand meme essayer d'implementer une fonction atoi et son inverse (mais nous ne somme pas certain que cela corresponde a la consigne.) Ce que nous avons essayé de faire se trouve néanmoins en commentaire dans \textcolor{vert2}{exception.cc}.
 \newline
-Problème strings
-
+La gestion des différente taille de string a été la partie la plus compliqué. il fallait faire attention a tout les cas de figure possible et bien veiller a ne rien perdre en route ou a en écrire trop. Nous avons cependant finit par réussir a créer des appels systeme qui semble avoir le comportement attendu en toute circonstance.
 \bigbreak
 \bigbreak
 \section {Limitations}
 Lors de notre implémentation, nous avons fait en sorte de respecter au mieux les consignes. Par exemple, nous garantissons qu'un '$\backslash$0' soit forcé dans la méthode \textcolor{red2}{copyStringFromMachine}. Nous nous assurons également que l'appel \textcolor{blue2}{GetString} fonctionne de manière identique à \textcolor{red2}{fgets}, en faisant attention aux détails (par exemple lire au plus size-1 caractères).
 \newline
-Malgré celà, nous sommes conscients que notre compréhension globale du projet a des limites dans la mesure ou nous ne savons pas comment tout fonctionne, et bien que n'avons pas à connaitre la plupart du fonctionnement de Nachos, il nous est arrivé régulièrement de ne pas comprendre certains méchanismes internes que nous aurions aimé assimiler.
-Ainsi, même si tout semble correspondre à la demande de l'énoncé, il est probable que nous ayons à revenir sur notre code dans le TP2 suite à des comportements innatendus et difficilement prévisibles.
-\newline
-L'avantage principal de notre implémentation est donc que nous avons respecté les détails des consignes, et fait en sorte de tester un maximum de cas différents pour chaque appel système, tout en vérifiant les fuites mémoires, pour éviter les mauvaises surprises dans le TP suivant.
-L'inconvénient principal est que nous n'avons sans doute pas vérifié absolument tous les cas, et qu'il est possible qu'on doive revenir sur notre implémentation lors du TP2.
+Malgré celà, nous sommes conscients que notre compréhension globale du projet a des limites dans la mesure ou nous ne savons pas comment tout fonctionne, et bien que nous n'avons pas à connaitre l'intégralité du fonctionnement de Nachos, il nous est arrivé régulièrement de ne pas comprendre certains méchanismes internes que nous aurions aimé assimiler.
+Ainsi, même si tout semble correspondre à la demande de l'énoncé, il est possible que nous ayons à revenir sur notre code dans le TP2 suite à des comportements innatendus et difficilement prévisibles.
 
 
 
 \section {Tests}
 
+Nous avons créé un programme de test pour chacun des appels système tous accessible dans le dossier test et éxécutable via le parametre -x de nachos dans userprog.
+Nous avons surtout mis a l'épreuve notre gestion des strings en faisant varié les taille de chaine de caractere a testé. Nous avons aussi prit soin de toujours utilisé valgrind afin de vérifier qu'il n'y est pas de fuite memoire.
+Nous avons cependant été limité dans la création de test simple complet et éfficasse car nous ne comprenons pas bien comment fonctionne la compilation des tests dans ce projet. Nous n'arrivons pas a inclure d'autre fichier se qui nous a empécher d'utiliser les outils de librairie c.
+Nous avons manqué de temps pour résoudre ce probleme car au moment de la création des dernier test il été trop tard pour espéré une réponse de la part des professeur.
+Mais nous espérons résoudre se probleme et fournir des test plus convainquant plus tard car si cela n'est pas trop pénalisant sur cette partie il en sera différement l'or du tp sur les thread ou de solide test seront nécessaire.
 
 
 
