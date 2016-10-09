@@ -2,7 +2,7 @@
 
 int main()
 {
-  int n[9];
+  int n[5];
   n[0]=25468;
   GetInt(n);
   return 0;

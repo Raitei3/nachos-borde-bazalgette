@@ -1,11 +1,10 @@
 #include "syscall.h"
 
 
-
+char s[10];
 int main()
 {
-  char s[10];
-  GetString(s,10);
+  GetString(s,256);
   PutString(s);
   return 0;
 }

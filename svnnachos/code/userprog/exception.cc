@@ -92,61 +92,94 @@ ExceptionHandler (ExceptionType which)
               case SC_PutString:
               {
                 DEBUG ('s', "call PutString.\n");
+                int from = machine -> ReadRegister(4);
                 char to[MAX_STRING_SIZE];
-                machine -> copyStringFromMachine(machine -> ReadRegister(4), to , MAX_STRING_SIZE);
+                while (machine -> copyStringFromMachine(from, to , MAX_STRING_SIZE-1) == MAX_STRING_SIZE-1)
+                {
+                  synchconsole -> SynchPutString(to);
+                  from += MAX_STRING_SIZE-1;
+
+                }
                 synchconsole -> SynchPutString(to);
                 break;
+
               }
               case SC_Exit:
               {
                 DEBUG ('s', "Shutdown, initiated auto\n");
+                int ret = machine -> ReadRegister(4);
+                printf("Exit(%d)\n",ret);
 		            interrupt->Halt ();
 		            break;
               }
 
-	      case SC_GetChar:
-		{
-		  DEBUG ('s', "call GetChar.\n");
-		  char s;
-		  s = synchconsole -> SynchGetChar();
-		  machine -> WriteRegister(2,s);
-		  break;
-		}
+	             case SC_GetChar:
+		             {
+		                  DEBUG ('s', "call GetChar.\n");
+		                  char s;
+		                  s = synchconsole -> SynchGetChar();
+                      machine -> WriteRegister(2,s);
+		                  break;
+		              }
 
-	     case SC_GetString:
-      {
-	       	  DEBUG ('s', "call GetString.\n");
-		  char s[MAX_STRING_SIZE];
-		  synchconsole -> SynchGetString(s, MAX_STRING_SIZE);
-		  machine -> copyStringToMachine(machine -> ReadRegister(4),s,MAX_STRING_SIZE);
-		  //machine -> WriteRegister(2,machine -> ReadRegister(4));
-		  break;
-      }
 
-      case SC_GetInt:
-      {
-        DEBUG ('s', "call GetInt.\n");
-        char s[MAX_STRING_SIZE];
-        int value;
-        machine -> ReadMem(machine -> ReadRegister(4),4,&value);
-        snprintf(s,MAX_STRING_SIZE,"%d",value);
-        machine -> copyStringToMachine(machine -> ReadRegister(4),s,MAX_STRING_SIZE);
-        break;
-      }
-
-      case SC_PutInt:
-      {
-        int n[1];
-        char s[MAX_STRING_SIZE];
-        synchconsole -> SynchGetString(s, MAX_STRING_SIZE);
-        sscanf(s,"%d",n);
-        machine -> WriteRegister(4,*n);
-        printf("%d\n",machine -> ReadRegister(4) );
-        break;
-      }
+                    case SC_GetString:
+                   {
+	       	            DEBUG ('s', "call GetString.\n");
+		                  char s[MAX_STRING_SIZE];
+                      int size = machine -> ReadRegister(5);
+                      int from = machine -> ReadRegister(4);
+                      int i=0 , j=MAX_STRING_SIZE-1;
+                      int x=0;
+                      while(size / MAX_STRING_SIZE > 0 && j == MAX_STRING_SIZE-1){
+                        synchconsole -> SynchGetString(s, MAX_STRING_SIZE);
+                        j=machine -> copyStringToMachine(from+i,s,MAX_STRING_SIZE);
+                        size -= j;
+                        i += j;
+                      }
+                      if(j == MAX_STRING_SIZE-1){
+                      synchconsole -> SynchGetString(s, size);
+                      j=machine -> copyStringToMachine(from+i,s,size);
+                    }
+                      break;
+                  }
 
 
 
+
+                    /*case SC_GetInt:
+                    {
+                      DEBUG ('s', "call GetInt.\n");
+                      char s[MAX_STRING_SIZE];
+                      int value;
+                      int from = machine -> ReadRegister(4);
+                      machine -> ReadMem(from,4,&value);
+                      snprintf(s,MAX_STRING_SIZE,"%d",value);
+                      machine -> copyStringToMachine(from,s,MAX_STRING_SIZE);
+                      printf("%s\n",s);
+                      break;
+                    }
+
+                    case SC_PutInt:
+                    {
+                      int n;
+                      char s[5];
+                      synchconsole -> SynchGetString(s, 5);
+                      sscanf(s,"%d",&n);
+                      machine -> WriteRegister(4,n);
+                      printf("%d\n",machine -> ReadRegister(4));
+                      break;
+                    }*/
+
+                  /*  case SC_PutInt:
+                    {
+                      int[]
+                      int n = machine -> ReadRegister(4);
+                      char s[MAX_STRING_SIZE];
+                      snprintf(s,"%d",n);
+
+                      break;
+                    }*/
 
       #endif //CHANGED
 
