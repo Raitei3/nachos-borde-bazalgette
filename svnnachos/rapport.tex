@@ -18,8 +18,8 @@
 \begin{document}
 \title{Projet système : Nachos TP 1}
 \author{Martin BAZALGETTE, Antoine BORDE}
-
 \maketitle
+
 \newpage
 \tableofcontents
 \newpage
@@ -27,7 +27,7 @@
 \section{Bilan}
 L'objectif de ce TP était d'ajouter quelques appels systèmes à NACHOS.
 \newline
-Pour pouvoir travailler en binôme efficacement, nous avons mis en place un dépot git possédant plusieurs branches, de manière à ce que chacun possède une version du projet personnelle, qu'il pourra modifier à son bon vouloir.
+Pour pouvoir travailler en binôme efficacement, nous avons mis en place un dépot git possédant plusieurs branches, de manière à ce que chacun possède une version du projet personnelle, qu'il pourra modifier à son bon vouloir. Ci joint l'adresse du dépot : https://github.com/Raitei3/nachos-borde-bazalgette.git
 
 \bigbreak
 \subsection{Découverte du projet}
@@ -44,8 +44,8 @@ Il s'agissait là d'une simple encapsulation de méthodes afin de nous simplifie
 \bigbreak
 \subsection{Ajout d'un appel système}
 Une fois que notre console synchrone fut testée et approuvée, nous nous sommes attaqués à la partie IV dans laquelle il nous était demandé d'implémenter l'appel système \textcolor{blue2}{PutChar}.
-Nous avons tout d'abord édité le fichier \textcolor{vert2}{syscall.h} pour ajouter \textcolor{blue2}{PutChar} dans la liste des appels systèmes valides, et ajouter la définition de la fonction utilisateur correspondante.
 \newline
+Nous avons tout d'abord édité le fichier \textcolor{vert2}{syscall.h} pour ajouter \textcolor{blue2}{PutChar} dans la liste des appels systèmes valides, et ajouter la définition de la fonction utilisateur correspondante.
 Nous avons par la suite modifié le fichier assembleur \textcolor{vert2}{start.S} pour ajouter la définition de \textcolor{blue2}{PutChar}.
 Enfin, dans le fichier \textcolor{vert2}{exception.cc}, nous avons implémenté le fonctionnement de notre appel système grâce à notre console synchrone. \textcolor{blue2}{PutChar} appelle la fonction de la console synchrone \textcolor{red2}{SynchPutChar}, qui pousse sur la sortie un caractère récupéré dans le registre 4 qui est le paramètre de notre appel système.
 
@@ -93,7 +93,6 @@ La gestion des différentes tailles de chaines de caractères a été la partie 
 \bigbreak
 \section {Limitations}
 Lors de notre implémentation, nous avons fait en sorte de respecter au mieux les consignes. Par exemple, nous garantissons qu'un '$\backslash$0' soit forcé dans la méthode \textcolor{red2}{copyStringFromMachine}. Nous nous assurons également que l'appel \textcolor{blue2}{GetString} fonctionne de manière identique à \textcolor{red2}{fgets}, en faisant attention aux détails (par exemple lire au plus size-1 caractères).
-\newpage
 Malgré celà, nous sommes conscients que notre compréhension globale du projet a des limites dans la mesure ou nous ne savons pas comment tout fonctionne, et bien que nous n'avons pas à connaitre l'intégralité du fonctionnement de Nachos, il nous est arrivé régulièrement de ne pas comprendre certains méchanismes internes que nous aurions aimé assimiler.
 Ainsi, même si tout semble correspondre à la demande de l'énoncé, il est possible que nous ayons à revenir sur notre code dans le TP2 suite à des comportements innatendus et difficilement prévisibles.
 
