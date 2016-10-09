@@ -11,6 +11,10 @@
 \usepackage{tocbibind}
 \usepackage{array}
 
+\definecolor{vert2}{rgb}{0.09,0.30,0.12}
+\definecolor{red2}{rgb}{0.43,0.05,0.1}
+\definecolor{blue2}{rgb}{0.1,0.05,0.5}
+
 \begin{document}
 \title{Projet système : Nachos TP 1}
 \author{Martin BAZALGETTE, Antoine BORDE}
@@ -24,19 +28,40 @@
 L'objectif de ce TP était d'ajouter quelques appels systèmes à NACHOS.
 \newline
 Pour pouvoir travailler en binôme efficacement, nous avons mis en place un dépot git possédant plusieurs branches, de manière à ce que chacun possède une version du projet personnelle, qu'il pourra modifier à son bon vouloir.
-\newline
+\bigbreak
 \subsection{Découverte du projet}
 Nous avons commencé par découvrir le projet avec la partie II. Nous devions modifier légèrement le code de manière à comprendre comment Nachos gère ses entrées et ses sorties.
 Nous avons appris l'existence de sémaphores, dont le rôle est primordial pour le bon fonctionnement de la console.
 L'un des sémaphores intervient lorsque l'on veut écrire sur la console, en assurant que la requête précédente soit terminée. L'autre sémaphore intervient lorsqu'on veut lire, en assurant qu'il y a quelque chose à lire.
+\bigbreak
 \subsection{Mise en place d'une console synchrone}
-Ce fonctionnement étant asynchrone et assez primitif, nous l'avons amélioré dans la partie III, dont le but était d'implémenter une couche d'entrées/sorties synchrones. Nous devions donc créer une console synchronisée qui communique entre l'utilisateur et la console asynchrone. 
-Dans cette partie, nous devions implémenter deux fonctions permettant de communiquer caractère par caractère. Nous avons donc fait appel aux fonctions PutChar et GetChar de la classe Console, tout en nous servant des sémaphores.
-\newline
+Ce fonctionnement étant asynchrone et assez primitif, nous l'avons amélioré dans la partie III, dont le but était d'implémenter une couche d'entrées/sorties synchrones. Nous devions donc créer une console synchronisée qui communique entre l'utilisateur et la console asynchrone.
+Dans cette partie, nous devions implémenter deux fonctions permettant de communiquer caractère par caractère. Nous avons donc fait appel aux fonctions \textcolor{red2}{PutChar} et \textcolor{red2}{GetChar} de la classe Console, tout en nous servant des sémaphores.
+\bigbreak
 \subsection{Ajout d'un appel système}
-Une fois que notre console synchrone fut testée et approuvée, nous nous sommes attaqués à la partie IV dans laquelle il nous était demandé d'implémenter l'appel système PutChar.
-Nous avons tout d'abord édité le fichier syscall.h pour ajouter Putchar dans la liste des appels systèmes valides, et ajouter la définition de la fonction utilisateur correspondante. Nous avons par la suite modifié le fichier assembleur start.S pour ajouter la définition de PutChar.
-Enfin, dans le fichier exception.cc, nous avons implémenté le fonctionnement de notre appel système grâce à notre console synchrone. Putchar appelle la fonction de la console synchrone SynchPutChar, qui pousse sur la sortie un caractère récupéré dans la registre 4 (à détailler)
+Une fois que notre console synchrone fut testée et approuvée, nous nous sommes attaqués à la partie IV dans laquelle il nous était demandé d'implémenter l'appel système \textcolor{blue2}{PutChar}.
+Nous avons tout d'abord édité le fichier \textcolor{vert2}{syscall.h} pour ajouter \textcolor{blue2}{PutChar} dans la liste des appels systèmes valides, et ajouter la définition de la fonction utilisateur correspondante.
+Nous avons par la suite modifié le fichier assembleur \textcolor{vert2}{start.S} pour ajouter la définition de \textcolor{blue2}{PutChar}.
+Enfin, dans le fichier \textcolor{vert2}{exception.cc}, nous avons implémenté le fonctionnement de notre appel système grâce à notre console synchrone. \textcolor{blue2}{PutChar} appelle la fonction de la console synchrone \textcolor{red2}{SynchPutChar}, qui pousse sur la sortie un caractère récupéré dans la registre 4 (à détailler)
+\bigbreak
+\subsection{Ecriture de chaines de caractères}
+Notre travail dans cette partie était d'améliorer notre console synchrone en lui ajoutant une fonction qui puisse écrire des chaines de caractères. Pour cela nous avons du implémenter une fonction \textcolor{red2}{copyStringFromMachine} qui est similaire à la fonction C \textcolor{red2}{strcpy}. Cette fonction copie une chaine de caractère du monde utilisateur vers le noyau, et fait donc la liaison entre ces deux espaces.
+\newline
+Nous avons d'abord décidé de la placer dans le fichier \textcolor{vert2}{exception.cc}, car c'est la que nous l'appelons. Cependant, nous n'étions pas satisfaits de cet emplacement, c'est pour ça que nous l'avons finalement placée dans \textcolor{vert2}{machine.cc}, tout en en faisant une méthode de la classe Machine. (compléter choix machine.cc + question V.2)
+\newline
+Nous avons par la suite ajouté l'appel système \textcolor{blue2}{PutString} (de manière analogue à \textcolor{blue2}{PutChar}), qui récupère la chaine de caractères entrée par l'utilisateur via la méthode \textcolor{red2}{copyStringFromMachine}, puis qui appelle la fonction \textcolor{red2}{SynchPutString} de notre console synchrone pour écrire cette chaine. (question V.3)
+Au départ, notre implémentation gérait mal les chaines de caractères trop longues car elle les tronquait si elles étaient plus longues que MAX\_STRING\_SIZE. Nous détaillerons ce problème que nous avons résolu dans la partie suivante. (peut être plus de détails sur le comportement de PutString)
+\bigbreak
+\subsection{Halt automatique et valeur de retour du main}
+Lorsqu'on enlève l'appel à \textcolor{blue2}{Halt} à la fin du main, on reçoit une erreur "Uninplemented system call 1". On remarque dans le fichier \textcolor{vert2}{syscall.h}, l'appel système 1 correspond à \textcolor{blue2}{Exit}. Ce dernier n'étant pas implémenté, il est normal que le programme renvoie une erreur. Pour résoudre ce problème, nous avons implémenté l'appel système \textcolor{blue2}{Exit}, qui fait un appel à \textcolor{blue2}{Halt}. Nous n'avons désormais plus besoin d'appeler \textcolor{blue2}{Halt} à la fin de nos main puisque \textcolor{blue2}{Exit} le fait systématiquement.
+\newline
+Pour prendre en compte la valeur de retour du main, nous avons modifié le code de l'appel système \textcolor{blue2}{Exit} dans le code assembleur, en plaçant le registre 2 dans le registre 4 au moment de l'appel à \textcolor{blue2}{Exit}. Le registre 2 étant le paramètre de retour du main, et le registre 4 le paramètre d'\textcolor{blue2}{Exit}. nous avons ensuite modifié exception.cc pour que \textcolor{blue2}{Exit} affiche cette valeur de retour.
+\bigbreak
+\subsection{Lecture de chaines de caractères}
+Dans cette partie, nous avons ajouté à notre console synchrone la possibilité de lire des chaines de caractères. Nous avons donc commencé par implémenter l'appel système \textcolor{blue2}{GetChar}. (fin de fichier ??) Nous avons ensuite complété la fonction \textcolor{red2}{SynchGetString} de notre console. Après celà, nous avons ajouté l'appel système \textcolor{blue2}{GetString}, par analogie à \textcolor{blue2}{PutString}, en implémentant une fonction \textcolor{red2}{copyStringToMachine} qui, à l'inverse de \textcolor{red2}{copyStringFromMachine}, copie une chaine du monde noyau vers le monde utilisateur.
+\newline
+La consigne précisait qu'il fallait construire \textcolor{blue2}{GetString} sur le modèle de la fonction C \textcolor{red2}{fgets}. Nous avons donc respecté les fonctionalités de \textcolor{red2}{fgets}, comme par exemple le fait que la fonction s'arrête quand elle rencontre un retour chariot. si la longueur de la chaine de caractère qui doit être lue est plus longue que la taille du tampon noyau, on appelle \textcolor{red2}{SynchGetString} autant de fois qu'il faut en réutilisant le tampon. Ainsi, on garantit qu'il n'y ait pas de débordement.
+
 
 
 \section {Points Délicats}
