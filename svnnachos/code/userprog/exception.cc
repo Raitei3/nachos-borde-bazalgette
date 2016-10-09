@@ -32,12 +32,12 @@
 static void
 UpdatePC ()
 {
-    int pc = machine->ReadRegister (PCReg);
-    machine->WriteRegister (PrevPCReg, pc);
-    pc = machine->ReadRegister (NextPCReg);
-    machine->WriteRegister (PCReg, pc);
-    pc += 4;
-    machine->WriteRegister (NextPCReg, pc);
+  int pc = machine->ReadRegister (PCReg);
+  machine->WriteRegister (PrevPCReg, pc);
+  pc = machine->ReadRegister (NextPCReg);
+  machine->WriteRegister (PCReg, pc);
+  pc += 4;
+  machine->WriteRegister (NextPCReg, pc);
 }
 
 
@@ -67,145 +67,147 @@ UpdatePC ()
 void
 ExceptionHandler (ExceptionType which)
 {
-    int type = machine->ReadRegister (2);
+  int type = machine->ReadRegister (2);
 
-    switch (which)
+  switch (which)
+  {
+    case SyscallException:
+    {
+      switch (type)
       {
-	case SyscallException:
+        case SC_Halt:
+        {
+          DEBUG ('s', "Shutdown, initiated by user program.\n");
+          interrupt->Halt ();
+          break;
+        }
+        #ifdef CHANGED
+        case SC_PutChar:
+        {
+          DEBUG ('s', "call PutChar.\n");
+          synchconsole -> SynchPutChar(machine->ReadRegister(4));
+          break;
+        }
+
+        case SC_PutString:
+        {
+          DEBUG ('s', "call PutString.\n");
+          int from = machine -> ReadRegister(4);
+          char to[MAX_STRING_SIZE];
+          while (machine -> copyStringFromMachine(from, to , MAX_STRING_SIZE-1) == MAX_STRING_SIZE-1)
           {
-	    switch (type)
-	      {
-	      case SC_Halt:
-		  {
-		    DEBUG ('s', "Shutdown, initiated by user program.\n");
-		    interrupt->Halt ();
-		    break;
-		  }
-      #ifdef CHANGED
-      	      case SC_PutChar:
-      		{
-      		  DEBUG ('s', "call PutChar.\n");
-            synchconsole -> SynchPutChar(machine->ReadRegister(4));
-      		  break;
-      		}
+            synchconsole -> SynchPutString(to);
+            from += MAX_STRING_SIZE-1;
 
-              case SC_PutString:
-              {
-                DEBUG ('s', "call PutString.\n");
-                int from = machine -> ReadRegister(4);
-                char to[MAX_STRING_SIZE];
-                while (machine -> copyStringFromMachine(from, to , MAX_STRING_SIZE-1) == MAX_STRING_SIZE-1)
-                {
-                  synchconsole -> SynchPutString(to);
-                  from += MAX_STRING_SIZE-1;
+          }
+          synchconsole -> SynchPutString(to);
+          break;
 
-                }
-                synchconsole -> SynchPutString(to);
-                break;
+        }
+        case SC_Exit:
+        {
+          DEBUG ('s', "Shutdown, initiated auto\n");
+          int ret = machine -> ReadRegister(4);
+          printf("Exit(%d)\n",ret);
+          interrupt->Halt ();
+          break;
+        }
 
-              }
-              case SC_Exit:
-              {
-                DEBUG ('s', "Shutdown, initiated auto\n");
-                int ret = machine -> ReadRegister(4);
-                printf("Exit(%d)\n",ret);
-		            interrupt->Halt ();
-		            break;
-              }
-
-	             case SC_GetChar:
-		             {
-		                  DEBUG ('s', "call GetChar.\n");
-		                  char s;
-		                  s = synchconsole -> SynchGetChar();
-                      machine -> WriteRegister(2,s);
-		                  break;
-		              }
+        case SC_GetChar:
+        {
+          DEBUG ('s', "call GetChar.\n");
+          char s;
+          s = synchconsole -> SynchGetChar();
+          machine -> WriteRegister(2,s);
+          break;
+        }
 
 
-                    case SC_GetString:
-                   {
-	       	            DEBUG ('s', "call GetString.\n");
-		                  char s[MAX_STRING_SIZE];
-                      int size = machine -> ReadRegister(5);
-                      int from = machine -> ReadRegister(4);
-                      int i=0 , j=MAX_STRING_SIZE-1;
-                      int x=0;
-                      while(size / MAX_STRING_SIZE > 0 && j == MAX_STRING_SIZE-1){
-                        synchconsole -> SynchGetString(s, MAX_STRING_SIZE);
-                        j=machine -> copyStringToMachine(from+i,s,MAX_STRING_SIZE);
-                        size -= j;
-                        i += j;
-                      }
-                      if(j == MAX_STRING_SIZE-1){
-                      synchconsole -> SynchGetString(s, size);
-                      j=machine -> copyStringToMachine(from+i,s,size);
-                    }
-                      break;
-                  }
+        case SC_GetString:
+        {
+          DEBUG ('s', "call GetString.\n");
+          char s[MAX_STRING_SIZE];
+          int size = machine -> ReadRegister(5);
+          int from = machine -> ReadRegister(4);
+          int i=0 , j=MAX_STRING_SIZE-1;
+          int x=0;
+          while(size / MAX_STRING_SIZE > 0 && j == MAX_STRING_SIZE-1){
+            synchconsole -> SynchGetString(s, MAX_STRING_SIZE);
+            j=machine -> copyStringToMachine(from+i,s,MAX_STRING_SIZE);
+            size -= j;
+            i += j;
+          }
+          if(j == MAX_STRING_SIZE-1){
+            synchconsole -> SynchGetString(s, size);
+            j=machine -> copyStringToMachine(from+i,s,size);
+          }
+          break;
+        }
 
 
 
 
-                    /*case SC_GetInt:
-                    {
-                      DEBUG ('s', "call GetInt.\n");
-                      char s[MAX_STRING_SIZE];
-                      int value;
-                      int from = machine -> ReadRegister(4);
-                      machine -> ReadMem(from,4,&value);
-                      snprintf(s,MAX_STRING_SIZE,"%d",value);
-                      machine -> copyStringToMachine(from,s,MAX_STRING_SIZE);
-                      printf("%s\n",s);
-                      break;
-                    }
+        /*case SC_GetInt:
+        {
+        DEBUG ('s', "call GetInt.\n");
+        char s[MAX_STRING_SIZE];
+        int value;
+        int from = machine -> ReadRegister(4);
+        machine -> ReadMem(from,4,&value);
+        snprintf(s,MAX_STRING_SIZE,"%d",value);
+        machine -> copyStringToMachine(from,s,MAX_STRING_SIZE);
+        printf("%s\n",s);
+        break;
+        }
 
-                    case SC_PutInt:
-                    {
-                      int n;
-                      char s[5];
-                      synchconsole -> SynchGetString(s, 5);
-                      sscanf(s,"%d",&n);
-                      machine -> WriteRegister(4,n);
-                      printf("%d\n",machine -> ReadRegister(4));
-                      break;
-                    }*/
-
-                  /*  case SC_PutInt:
-                    {
-                      int[]
-                      int n = machine -> ReadRegister(4);
-                      char s[MAX_STRING_SIZE];
-                      snprintf(s,"%d",n);
-
-                      break;
-                    }*/
-
-      #endif //CHANGED
-
-	      default:
-		  {
-		    printf("Unimplemented system call %d\n", type);
-		    ASSERT(FALSE);
-		  }
-	      }
-
-	    // Do not forget to increment the pc before returning!
-	    UpdatePC ();
-	    break;
-	  }
-
-	case PageFaultException:
-	  if (!type) {
-	    printf("NULL dereference at PC %x!\n", machine->registers[PCReg]);
-	    ASSERT (FALSE);
-	  } else {
-	    printf ("Page Fault at address %x at PC %x\n", type, machine->registers[PCReg]);
-	    ASSERT (FALSE);	// For now
-	  }
-
-	default:
-	  printf ("Unexpected user mode exception %d %d at PC %x\n", which, type, machine->registers[PCReg]);
-	  ASSERT (FALSE);
+        case SC_PutInt:
+        {
+        int n;
+        char s[5];
+        synchconsole -> SynchGetString(s, 5);
+        sscanf(s,"%d",&n);
+        machine -> WriteRegister(4,n);
+        printf("%d\n",machine -> ReadRegister(4));
+        break;
       }
+        */
+
+        /*  case SC_PutInt:
+        {
+        int[]
+        int n = machine -> ReadRegister(4);
+        char s[MAX_STRING_SIZE];
+        snprintf(s,"%d",n);
+
+        break;
+      }
+        */
+
+        #endif //CHANGED
+
+        default:
+        {
+          printf("Unimplemented system call %d\n", type);
+          ASSERT(FALSE);
+        }
+      }
+
+      // Do not forget to increment the pc before returning!
+      UpdatePC ();
+      break;
+    }
+
+    case PageFaultException:
+    if (!type) {
+      printf("NULL dereference at PC %x!\n", machine->registers[PCReg]);
+      ASSERT (FALSE);
+    } else {
+      printf ("Page Fault at address %x at PC %x\n", type, machine->registers[PCReg]);
+      ASSERT (FALSE);	// For now
+    }
+
+    default:
+    printf ("Unexpected user mode exception %d %d at PC %x\n", which, type, machine->registers[PCReg]);
+    ASSERT (FALSE);
+  }
 }
