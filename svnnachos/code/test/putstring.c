@@ -1,8 +1,8 @@
 #include "syscall.h"
 
 
-/** test de l'appel systeme PutString qui doit écrire dans la console
-*   les chaine suivante a l'identique
+/** test de l'appel système PutString qui doit écrire dans la console
+*   les chaines suivantes à l'identique.
 **/
 
 char * s = "test\n";

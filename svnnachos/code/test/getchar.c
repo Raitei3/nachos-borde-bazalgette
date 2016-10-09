@@ -1,7 +1,7 @@
 #include "syscall.h"
 
-/** Test de l'appel systeme GetChar. a l'éxécution demande d'entré un
-*caractere dans la console et doit le retourner .
+/** Test de l'appel système GetChar. A l'éxécution, demande d'entrer un
+*caractère dans la console et doit le retourner.
 **/
 
 

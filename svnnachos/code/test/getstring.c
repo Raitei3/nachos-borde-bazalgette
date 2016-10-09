@@ -2,9 +2,9 @@
 
 
 /**
-*Ce test va demander a l'utilisateur de rentré une chaine de caractere
-*dans la console. Celle ci devra lui etre retourné dans son intégralité sauf en
-*cas de présence d'un \n d'un EOF ou si elle dépasse size-1 comme pour fgets
+*Ce test va demander à l'utilisateur de rentrer une chaine de caractères
+*dans la console. Celle-ci devra lui être retournée dans son intégralité sauf en
+*cas de présence d'un '\n' d'un EOF, ou encore si elle dépasse size-1 comme pour fgets
 **/
 
 int size = 15; // le parametre size de l'appel (comme pour fgets représente le nombre limite de caractere lu)
