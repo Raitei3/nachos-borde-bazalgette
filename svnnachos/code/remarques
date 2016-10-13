@@ -1,0 +1,14 @@
+userprog/addrspace.cc : gère les allocations d'espace.
+thread/thread.cc : gère la création, free des threads.
+thread/scheduler.cc : gère l'organisation des threads.
+thread/sync.cc : gère la synchronisation des threads
+
+action I.1 :
+Les threads sont alloués et initialisés dans thread.cc
+la pile d'un thread Nachos se trouve dans un espace noyau Nachos
+
+
+action I.2 :
+dans progtest.cc/StartProcess, on crée un objet AddrSpace qui crée un espace mémoire pour un programme utilisateur.
+On donne cet espace à la variable globale currentThread (system.cc).
+
