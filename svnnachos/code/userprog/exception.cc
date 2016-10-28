@@ -196,14 +196,16 @@ ExceptionHandler (ExceptionType which)
         */
 
         case SC_ThreadCreate:
-	//todo
+        int thread;
+        thread = do_ThreadCreate(machine -> ReadRegister(4),machine -> ReadRegister(5));
+        machine -> WriteRegister(2,thread);
 	  break;
 
         case SC_ThreadExit:
 	//todo
 	  break;
-	
-	
+
+
 
         #endif //CHANGED
 
