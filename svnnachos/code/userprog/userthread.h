@@ -9,8 +9,8 @@
 #include "copyright.h"
 
 
-#ifndef USERTHREAD_H
-#define USERTHREAD_H
+//#ifndef USERTHREAD_H
+//#define USERTHREAD_H
 
 typedef struct argInitThread {
   int fun;
@@ -18,10 +18,10 @@ typedef struct argInitThread {
 } argInitThread ;
 
 
-extern int do_Thread_Create(int f, int arg);
+extern int do_ThreadCreate(int f, int arg);
 static void StartUserThread(void * init);
 void do_ThreadExit(Thread * t);
 
 
-#endif // USERTHREAD_H
+//#endif // USERTHREAD_H
 #endif // CHANGED
