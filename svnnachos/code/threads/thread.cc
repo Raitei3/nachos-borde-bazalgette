@@ -104,7 +104,6 @@ Thread::~Thread ()
 void
 Thread::Start (VoidFunctionPtr func, void *arg)
 {
-    printf("start : %p\n",func );
     DEBUG ('t', "Starting thread \"%s\" with func = %p, arg = %d\n",
 	   name, func, arg);
 
@@ -374,7 +373,6 @@ Thread::StackAllocate (VoidFunctionPtr func, void *arg)
     // machineState[StartupPCState] = (int) InterruptEnable;
     machineState[StartupPCState] = (unsigned long) SetupThreadState;
     // End of modification
-    printf("allocate space : %p\n",func );
     machineState[InitialPCState] = (unsigned long) func;
     machineState[InitialArgState] = (unsigned long) arg;
     machineState[WhenDonePCState] = (unsigned long) ThreadFinish;

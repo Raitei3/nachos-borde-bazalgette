@@ -7,14 +7,13 @@ void func(void)
 {
   char c = 'a';
   PutChar(c);
+  ThreadExit();
 }
 
 int main()
 {
   void * v = &(func);
   ThreadCreate(v, 0);
-  while (n>0){
-    n=n-1;
-  }
+  while (1){}
   return 0;
 }
