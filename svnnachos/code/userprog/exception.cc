@@ -196,9 +196,11 @@ ExceptionHandler (ExceptionType which)
         */
 
         case SC_ThreadCreate:
+        printf("entré appel systeme : %p\n", machine -> ReadRegister(4));
         int thread;
         thread = do_ThreadCreate(machine -> ReadRegister(4),machine -> ReadRegister(5));
         machine -> WriteRegister(2,thread);
+        printf("fin appel systeme : %d\n",machine -> ReadRegister(4) );
 	  break;
 
         case SC_ThreadExit:

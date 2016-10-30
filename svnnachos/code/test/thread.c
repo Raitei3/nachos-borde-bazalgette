@@ -1,12 +1,20 @@
 #include "syscall.h"
 
-void func(char c) {
-  putchar(c);
-  printf("yop");
+
+int n = 1000 ;
+
+void func(void)
+{
+  char c = 'a';
+  PutChar(c);
 }
 
 int main()
 {
-  ThreadCreate(func, 'y');
+  void * v = &(func);
+  ThreadCreate(v, 0);
+  while (n>0){
+    n=n-1;
+  }
   return 0;
 }
