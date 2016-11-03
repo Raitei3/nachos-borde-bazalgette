@@ -29,6 +29,9 @@
 
 #include "userthread.h"
 
+int threadCountCreated=1;
+int threadCountDeleted=0;
+
 #endif //CHANGED
 
 //----------------------------------------------------------------------
@@ -199,11 +202,17 @@ ExceptionHandler (ExceptionType which)
         DEBUG ('s', "call ThreadCreate.\n");
         int thread;
         thread = do_ThreadCreate(machine -> ReadRegister(4),machine -> ReadRegister(5));
+        threadCountCreated +=1;
         machine -> WriteRegister(2,thread);
 	  break;
 
         case SC_ThreadExit:
+        threadCountDeleted +=1;
         DEBUG ('s', "call ThreadExit.\n");
+        if (threadCountDeleted == threadCountCreated)
+        {
+          interrupt->Halt();
+        }
         do_ThreadExit(currentThread);
         	  break;
 
