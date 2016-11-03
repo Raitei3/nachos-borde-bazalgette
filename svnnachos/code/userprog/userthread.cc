@@ -20,8 +20,8 @@ static void StartUserThread(void * init) {
   machine->WriteRegister (PCReg, in->fun);
   machine->WriteRegister (NextPCReg, machine -> ReadRegister(PCReg)+4);
   machine->WriteRegister (StackReg, currentThread->space->AllocateUserStack());
+  DEBUG ('a', "Initializing thread stack register to 0x%x\n", machine->ReadRegister(StackReg));
   machine->Run();
-  DEBUG ('a', "Initializing stack register to 0x%x\n");
 }
 
 void do_ThreadExit(Thread * t){

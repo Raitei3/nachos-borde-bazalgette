@@ -7,7 +7,8 @@
 
 static Semaphore *readAvail;
 static Semaphore *writeDone;
-
+static Semaphore *criticalPut;
+static Semaphore *criticalGet;
 
 static void ReadAvailHandler(void*arg)
 {
@@ -23,7 +24,10 @@ static void WriteDoneHandler(void*arg)
 SynchConsole::SynchConsole(const char *in, const char *out) {
   readAvail = new Semaphore("read avail", 0);
   writeDone = new Semaphore("write done", 0);
-  console = new Console(in , out , ReadAvailHandler, WriteDoneHandler, 0);}
+  criticalPut = new Semaphore("criticalGet", 1);
+  console = new Console(in , out , ReadAvailHandler, WriteDoneHandler, 0);
+  criticalGet = new Semaphore("criticalGet", 1);
+}
 
 
   SynchConsole::~SynchConsole()
@@ -35,15 +39,20 @@ SynchConsole::SynchConsole(const char *in, const char *out) {
 
   void SynchConsole::SynchPutChar(int ch)
   {
+    criticalPut -> P();
     console -> PutChar(ch);
     writeDone -> P();
+    criticalPut -> V();
   }
 
   int SynchConsole::SynchGetChar()
   {
     int ch;
+    criticalGet ->P();
     readAvail->P();
-    return ch = console -> GetChar();
+    ch = console -> GetChar();
+    criticalGet ->V();
+    return ch;
   }
 
   void SynchConsole::SynchPutString(const char s[])
