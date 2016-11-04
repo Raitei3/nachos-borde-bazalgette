@@ -1,4 +1,5 @@
 #include "userthread.h"
+#include "exception.h"
 
 static void StartUserThread(void * init);
 

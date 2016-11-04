@@ -7,7 +7,7 @@ void func(void)
 {
   char c = 'a',d;
   while(1) {
-  c=GetChar();
+  //c=GetChar();
   PutChar(c);
   }
   ThreadExit();
@@ -19,8 +19,8 @@ int main()
   void * v = &(func);
   ThreadCreate(v, 0);
   while (1) {
-  c2 = GetChar();
-  PutChar(c2+1);
+  //c2 = GetChar();
+  PutChar(c2);
   }
   while (1){}
   return 0;
