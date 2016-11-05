@@ -32,7 +32,7 @@ class AddrSpace:dontcopythis
 
 #ifdef CHANGED
 
-  int AllocateUserStack(); // return new addr stack
+  int AllocateUserStack(int x); // return new addr stack
 
   #endif
 

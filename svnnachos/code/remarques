@@ -23,3 +23,6 @@ etre la des la partie une.sans doute d'ailleur.
   demandé au prof se qu'il en pensse
 
 action II.3:
+
+- faire attention vérifier les buffer des getstring en multi thread
+- protection des variable dans userthread

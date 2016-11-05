@@ -12,9 +12,11 @@
 //#ifndef USERTHREAD_H
 //#define USERTHREAD_H
 
+
+
 typedef struct argInitThread {
   int fun;
-  int* args;
+  int arg;
 } argInitThread ;
 
 

@@ -7,7 +7,7 @@
 *cas de présence d'un '\n' d'un EOF, ou encore si elle dépasse size-1 comme pour fgets
 **/
 
-int size = 15; // le parametre size de l'appel (comme pour fgets représente le nombre limite de caractere lu)
+int size = 500; // le parametre size de l'appel (comme pour fgets représente le nombre limite de caractere lu)
 char s[10];
 int main()
 {
