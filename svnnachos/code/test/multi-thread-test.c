@@ -2,8 +2,8 @@
 
 void func();
 
-int nbThread = 3;
-char a = 'T';
+int nbThread = 49;
+char a = 'A';
 
 
 int main(){
@@ -21,6 +21,7 @@ void func(void* c) {
   char* x = c;
   volatile int i=0;
   for (i=0; i < 3; i++)
-    PutChar(*x);
+    PutChar(*x+i);
   ThreadExit();
+
 }

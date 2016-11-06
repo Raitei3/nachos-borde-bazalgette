@@ -1,23 +1,40 @@
+#ifdef CHANGED
 #include "userthread.h"
 
-int threadCountCreated=1;
-int threadCountDeleted=0;
-int stackCountAllocate=1;
+Semaphore *threadCreate = new Semaphore("threadCreate",1);
+Semaphore *startThread = new Semaphore("startThread",1);
+Semaphore *threadExit = new Semaphore("threadExit",1);
 
-static void StartUserThread(void * init);
+int threadCountCreated = 1;
+int threadCountDeleted = 0;
+
+BitMap * bitmap;
+int threadSlot;
+
 
 int do_ThreadCreate(int f, int arg) {
-  threadCountCreated+=1;
-  Thread * newThread = new Thread("User Thread");
+  threadCreate->P();
 
+  if (threadCountCreated == 1){
+    bitmap = new BitMap(4);
+    bitmap->Mark(0);
+    currentThread->setIdMap(0);
+    }
+    threadCountCreated++;
+
+  threadCreate->V();
+
+  Thread * newThread = new Thread("User Thread");
   argInitThread * init = (argInitThread *)malloc(sizeof(struct argInitThread));
   init ->fun = f;
   init->arg = arg;
+
   newThread->Start(StartUserThread, init);
   return 0;
 }
 
-static void StartUserThread(void * init) {
+
+  void StartUserThread(void * init) {
   int i;
 
   for (i = 0; i < NumTotalRegs; i++) {
@@ -27,16 +44,44 @@ static void StartUserThread(void * init) {
   machine->WriteRegister (PCReg, in->fun);
   machine->WriteRegister (NextPCReg, machine -> ReadRegister(PCReg)+4);
   machine->WriteRegister (4, in->arg);
-  machine->WriteRegister (StackReg, currentThread->space->AllocateUserStack(stackCountAllocate));
-  stackCountAllocate +=1;
-  DEBUG ('a', "Initializing thread stack register to 0x%x\n", machine->ReadRegister(StackReg));
+  free (init);
+
+
+
+  startThread->P();
+while (bitmap->NumClear()==0) {currentThread->Yield();}
+
+  if(bitmap -> NumClear() > 0){
+
+    threadSlot = bitmap->Find();
+    currentThread -> setIdMap(threadSlot);
+    bitmap->Mark(threadSlot);
+
+    machine->WriteRegister (StackReg, currentThread->space->AllocateUserStack(threadSlot));
+    }
+
+    startThread->V();
   machine->Run();
+
+
+
+  DEBUG ('a', "Initializing thread stack register to 0x%x\n", machine->ReadRegister(StackReg));
 }
 
+
 void do_ThreadExit(Thread * t){
-  threadCountDeleted+=1;
-  //printf("delete:%d,%d\n",threadCountCreated,threadCountDeleted);
-  if (threadCountDeleted == threadCountCreated)
+threadExit->P();
+  bitmap->Clear(t->getIdMap());
+  threadCountDeleted++;
+  if (threadCountDeleted == threadCountCreated){
+    delete bitmap;
+    delete threadExit;
+    delete threadCreate;
+    delete startThread;
     interrupt->Halt();
+    }
+  threadExit->V();
   t->Finish();
+
 }
+#endif

@@ -40,6 +40,10 @@ SynchConsole::SynchConsole(const char *in, const char *out) {
     delete console;
     delete writeDone;
     delete readAvail;
+    delete criticalPutChar;
+    delete criticalGetString;
+    delete criticalGetChar;
+    delete criticalPutString;
   }
 
   void SynchConsole::SynchPutChar(int ch)

@@ -198,6 +198,7 @@ ExceptionHandler (ExceptionType which)
         case SC_ThreadCreate:
         DEBUG ('s', "call ThreadCreate.\n");
         int thread;
+        
         thread = do_ThreadCreate(machine -> ReadRegister(4),machine -> ReadRegister(5));
         //threadCountCreated +=1;
         machine -> WriteRegister(2,thread);

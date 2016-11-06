@@ -9,7 +9,8 @@ la pile d'un thread Nachos se trouve dans un espace noyau Nachos
 
 
 action I.2 :
-dans progtest.cc/StartProcess, on crée un objet AddrSpace qui crée un espace mémoire pour un programme utilisateur.
+dans progtest.cc/StartProcess, on crée un objet AddrSpace qui crée un espace mémoire
+ pour un programme utilisateur.
 On donne cet espace à la variable globale currentThread (system.cc).
 
 
@@ -19,10 +20,9 @@ action II.2:
   mais que va t'il se passé en cas de thread éxit d'un mauvais thread.
 - 2block de perdu en memoir et on sait pas pk ni si sa vient de cette partie c'étais peut
 etre la des la partie une.sans doute d'ailleur.
--la solution du compteur de thread dans exception.cc semble insufissante
-  demandé au prof se qu'il en pensse
 
 action II.3:
 
-- faire attention vérifier les buffer des getstring en multi thread
 - protection des variable dans userthread
+
+-demander au professeur si modifier thread est autorisé
