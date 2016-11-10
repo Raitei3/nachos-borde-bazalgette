@@ -125,168 +125,163 @@ ExceptionHandler (ExceptionType which)
           char to[MAX_STRING_SIZE];                  //on créer notre tampon
           while (copyStringFromMachine(from, to , MAX_STRING_SIZE) == MAX_STRING_SIZE )    //on remplit le tampon
           {                                                   //on recommence tant qu'on utilise tout le buffer
-            synchconsole -> SynchPutString(to);                         //et on envoie le tampon à la console.
-            from += MAX_STRING_SIZE-1;
-          }
-          synchconsole -> SynchPutString(to);
-          break;
+          synchconsole -> SynchPutString(to);                         //et on envoie le tampon à la console.
+          from += MAX_STRING_SIZE-1;
         }
-
-        /** Comme pour fgets on prendra soin de s'arreter lorsqu'on rencontre \n et de n'écrire que
-        *   size-1 caractères de la chaine.
-        **/
-
-        case SC_GetString:
-        {
-          DEBUG ('s', "call GetString.\n");
-          char s[MAX_STRING_SIZE];
-          int size = machine -> ReadRegister(5);  //on recupère les paramètres de l'appel
-          int from = machine -> ReadRegister(4);
-          int i=0 , j=MAX_STRING_SIZE-1;
-          while(size / MAX_STRING_SIZE > 0 && j == MAX_STRING_SIZE-1)   //on compare la taille du buffer avec celle
-          {                                                             //de size pour savoir quand on doit s'arrêter
-            synchconsole -> SynchGetString(s, MAX_STRING_SIZE);         //ou le nombre de cractere retourné pour savoir si la chaine
-                                                                        //s'est finie plus tôt.
-            j=copyStringToMachine(from+i,s,MAX_STRING_SIZE); //on recopie le contenu du buffer à l'adresse du paramètre
-            size -= j;                                                  //de l'appel système
-            i += j;
-          }
-          if(j == MAX_STRING_SIZE-1)
-          {
-            synchconsole -> SynchGetString(s, size);
-            j=copyStringToMachine(from+i,s,size);
-          }
-          break;
-        }
-
-
-
-
-        /*case SC_GetInt:
-
-        DEBUG ('s', "call GetInt.\n");
-        char s[MAX_STRING_SIZE];
-        int value;
-        int from = machine -> ReadRegister(4);
-        machine -> ReadMem(from,4,&value);
-        snprintf(s,MAX_STRING_SIZE,"%d",value);
-        copyStringToMachine(from,s,MAX_STRING_SIZE);
-        printf("%s\n",s);
+        synchconsole -> SynchPutString(to);
         break;
-
-
-        case SC_PutInt:
-
-        int n;
-        char s[5];
-        synchconsole -> SynchGetString(s, 5);
-        sscanf(s,"%d",&n);
-        machine -> WriteRegister(4,n);
-        printf("%d\n",machine -> ReadRegister(4));
-        break;
-
-        */
-
-        /*  case SC_PutInt:
-
-        int[]
-        int n = machine -> ReadRegister(4);
-        char s[MAX_STRING_SIZE];
-        snprintf(s,"%d",n);
-
-        break;
-
-        */
-
-        case SC_ThreadCreate:
-        DEBUG ('s', "call ThreadCreate.\n");
-        int thread;
-        
-        thread = do_ThreadCreate(machine -> ReadRegister(4),machine -> ReadRegister(5));
-        //threadCountCreated +=1;
-        machine -> WriteRegister(2,thread);
-	  break;
-
-        case SC_ThreadExit:
-        //threadCountDeleted +=1;
-        DEBUG ('s', "call ThreadExit.\n");
-        /*if (threadCountDeleted == threadCountCreated)
-        {
-          interrupt->Halt();
-        }*/
-        //printf("%s:\n",currentThread-> name );
-        //printf("%d\n", machine->ReadRegister(StackReg));
-        do_ThreadExit(currentThread);
-        	  break;
-
-
-
-        #endif //CHANGED
-
-        default:
-        {
-          printf("Unimplemented system call %d\n", type);
-          ASSERT(FALSE);
-        }
       }
 
-      // Do not forget to increment the pc before returning!
-      UpdatePC ();
+      /** Comme pour fgets on prendra soin de s'arreter lorsqu'on rencontre \n et de n'écrire que
+      *   size-1 caractères de la chaine.
+      **/
+
+      case SC_GetString:
+      {
+        DEBUG ('s', "call GetString.\n");
+        char s[MAX_STRING_SIZE];
+        int size = machine -> ReadRegister(5);  //on recupère les paramètres de l'appel
+        int from = machine -> ReadRegister(4);
+        int i=0 , j=MAX_STRING_SIZE-1;
+        while(size / MAX_STRING_SIZE > 0 && j == MAX_STRING_SIZE-1)   //on compare la taille du buffer avec celle
+        {                                                             //de size pour savoir quand on doit s'arrêter
+        synchconsole -> SynchGetString(s, MAX_STRING_SIZE);         //ou le nombre de cractere retourné pour savoir si la chaine
+        //s'est finie plus tôt.
+        j=copyStringToMachine(from+i,s,MAX_STRING_SIZE); //on recopie le contenu du buffer à l'adresse du paramètre
+        size -= j;                                                  //de l'appel système
+        i += j;
+      }
+      if(j == MAX_STRING_SIZE-1)
+      {
+        synchconsole -> SynchGetString(s, size);
+        j=copyStringToMachine(from+i,s,size);
+      }
       break;
     }
 
-    case PageFaultException:
-    if (!type) {
-      printf("NULL dereference at PC %x!\n", machine->registers[PCReg]);
-      ASSERT (FALSE);
-    } else {
-      printf ("Page Fault at address %x at PC %x\n", type, machine->registers[PCReg]);
-      ASSERT (FALSE);	// For now
+
+
+
+    /*case SC_GetInt:
+
+    DEBUG ('s', "call GetInt.\n");
+    char s[MAX_STRING_SIZE];
+    int value;
+    int from = machine -> ReadRegister(4);
+    machine -> ReadMem(from,4,&value);
+    snprintf(s,MAX_STRING_SIZE,"%d",value);
+    copyStringToMachine(from,s,MAX_STRING_SIZE);
+    printf("%s\n",s);
+    break;
+
+
+    case SC_PutInt:
+
+    int n;
+    char s[5];
+    synchconsole -> SynchGetString(s, 5);
+    sscanf(s,"%d",&n);
+    machine -> WriteRegister(4,n);
+    printf("%d\n",machine -> ReadRegister(4));
+    break;
+
+    */
+
+    /*  case SC_PutInt:
+
+    int[]
+    int n = machine -> ReadRegister(4);
+    char s[MAX_STRING_SIZE];
+    snprintf(s,"%d",n);
+
+    break;
+
+    */
+
+    case SC_ThreadCreate:
+    {
+
+      DEBUG ('s', "call ThreadCreate.\n");
+      int thread;
+      thread = do_ThreadCreate(machine -> ReadRegister(4),machine -> ReadRegister(5));
+      machine -> WriteRegister(2,thread);
+      break;
     }
 
-    default:
-    printf ("Unexpected user mode exception %d %d at PC %x\n", which, type, machine->registers[PCReg]);
-    ASSERT (FALSE);
+    case SC_ThreadExit:
+    {
+      DEBUG ('s', "call ThreadExit.\n");
+      do_ThreadExit(currentThread);
+      break;
+    }
+
+
+  #endif //CHANGED
+
+  default:
+  {
+    printf("Unimplemented system call %d\n", type);
+    ASSERT(FALSE);
   }
+}
+
+// Do not forget to increment the pc before returning!
+UpdatePC ();
+break;
+}
+
+case PageFaultException:
+if (!type) {
+  printf("NULL dereference at PC %x!\n", machine->registers[PCReg]);
+  ASSERT (FALSE);
+} else {
+  printf ("Page Fault at address %x at PC %x\n", type, machine->registers[PCReg]);
+  ASSERT (FALSE);	// For now
+}
+
+default:
+printf ("Unexpected user mode exception %d %d at PC %x\n", which, type, machine->registers[PCReg]);
+ASSERT (FALSE);
+}
 }
 
 #ifdef CHANGED
 
 int copyStringFromMachine(int from, char *to, unsigned size){
 
-	int value=0;
-	unsigned i=0;
-	do{
-		machine -> ReadMem(from,1,&value);  //on recopie caractère par caractère dans value
-		char s = (char)value;								// on caste (chose possible avec un int en char)
-		to[i]=s;
-		from++;												      //on incrémente notre adresse virtuelle
-		i++;
-	}while ((i < size-1) && (to[i-1] != '\0'));
+  int value=0;
+  unsigned i=0;
+  do{
+    machine -> ReadMem(from,1,&value);  //on recopie caractère par caractère dans value
+    char s = (char)value;								// on caste (chose possible avec un int en char)
+    to[i]=s;
+    from++;												      //on incrémente notre adresse virtuelle
+    i++;
+  }while ((i < size-1) && (to[i-1] != '\0'));
 
-	to[i] = '\0';											    //on force toujours l'écriture d'un '\0'
-	i++;
-	return i;
+  to[i] = '\0';											    //on force toujours l'écriture d'un '\0'
+  i++;
+  return i;
 }
 
 
 int copyStringToMachine(int from, char *to, unsigned size)
 {
-	int value = 0;
-	unsigned i=0;
-	do
-	{
-		value = to[i];
-		machine -> WriteMem(from,1,value);  //on fait l'inverse de ReadMem
-		i++;
-		from++;
-	} while (i < size-1 && to[i-1]!='\0' && to[i-1]!='\n' && to[i-1]!=EOF);
+  int value = 0;
+  unsigned i=0;
+  do
+  {
+    value = to[i];
+    machine -> WriteMem(from,1,value);  //on fait l'inverse de ReadMem
+    i++;
+    from++;
+  } while (i < size-1 && to[i-1]!='\0' && to[i-1]!='\n' && to[i-1]!=EOF);
 
-	if (to[i-1]=='\n' && to[i-1]==EOF){
-		machine -> WriteMem(from,1,'\0');				//comme fgets on force l'écriture d'un '\0'
-		i++;
-	}
-	return i;
+  if (to[i-1]=='\n' && to[i-1]==EOF){
+    machine -> WriteMem(from,1,'\0');				//comme fgets on force l'écriture d'un '\0'
+    i++;
+  }
+  return i;
 }
 
-#endif // CHANGED 
+#endif // CHANGED

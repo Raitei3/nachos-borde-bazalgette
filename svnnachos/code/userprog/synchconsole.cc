@@ -7,10 +7,10 @@
 
 static Semaphore *readAvail;
 static Semaphore *writeDone;
-static Semaphore *criticalPutChar;
-static Semaphore *criticalGetChar;
-static Semaphore *criticalGetString;
-static Semaphore *criticalPutString;
+static Lock *criticalPutChar;
+static Lock *criticalGetChar;
+static Lock *criticalGetString;
+static Lock *criticalPutString;
 
 static void ReadAvailHandler(void*arg)
 {
@@ -26,67 +26,67 @@ static void WriteDoneHandler(void*arg)
 SynchConsole::SynchConsole(const char *in, const char *out) {
   readAvail = new Semaphore("read avail", 0);
   writeDone = new Semaphore("write done", 0);
-  criticalPutChar = new Semaphore("criticalPutChar", 1);
+  criticalPutChar = new Lock("criticalPutChar");
   console = new Console(in , out , ReadAvailHandler, WriteDoneHandler, 0);
-  criticalGetChar = new Semaphore("criticalGetChar", 1);
-  criticalGetString = new Semaphore("criticalGetString",1);
-  criticalPutString = new Semaphore("criticalPutString",1);
+  criticalGetChar = new Lock("criticalGetChar");
+  criticalGetString = new Lock("criticalGetString");
+  criticalPutString = new Lock("criticalPutString");
 
 }
 
 
-  SynchConsole::~SynchConsole()
-  {
-    delete console;
-    delete writeDone;
-    delete readAvail;
-    delete criticalPutChar;
-    delete criticalGetString;
-    delete criticalGetChar;
-    delete criticalPutString;
+SynchConsole::~SynchConsole()
+{
+  delete console;
+  delete writeDone;
+  delete readAvail;
+  delete criticalPutChar;
+  delete criticalGetString;
+  delete criticalGetChar;
+  delete criticalPutString;
+}
+
+void SynchConsole::SynchPutChar(int ch)
+{
+  criticalPutChar -> Acquire();
+  console -> PutChar(ch);
+  writeDone -> P();
+  criticalPutChar -> Release();
+}
+
+int SynchConsole::SynchGetChar()
+{
+  int ch;
+  criticalGetChar ->Acquire();
+  readAvail->P();
+  ch = console -> GetChar();
+  criticalGetChar ->Release();
+  return ch;
+}
+
+void SynchConsole::SynchPutString(const char s[])
+{ //on recherche juste '\0' car on le force en amont
+criticalPutString->Acquire();
+while (*s != '\0') {
+  SynchPutChar(*s);
+  s++;
+}
+criticalPutString->Release();
+}
+
+void SynchConsole::SynchGetString(char * s, int n)
+{
+  criticalGetString->Acquire();
+  if (n > 0){
+    int i=0;
+
+    do{
+      s[i] = SynchGetChar();
+      i++;
+    }while ((i < n-1) && (s[i-1]!='\n') && (s[i-1]!='\0') && (s[i-1] != EOF));  // EOF valeur retournée par getchar mais on va pas trouver ca dans un char *. a supprimer
   }
-
-  void SynchConsole::SynchPutChar(int ch)
-  {
-    criticalPutChar -> P();
-    console -> PutChar(ch);
-    writeDone -> P();
-    criticalPutChar -> V();
-  }
-
-  int SynchConsole::SynchGetChar()
-  {
-    int ch;
-    criticalGetChar ->P();
-    readAvail->P();
-    ch = console -> GetChar();
-    criticalGetChar ->V();
-    return ch;
-  }
-
-  void SynchConsole::SynchPutString(const char s[])
-  { //on recherche juste '\0' car on le force en amont
-  criticalPutString->P();
-    while (*s != '\0') {
-      SynchPutChar(*s);
-      s++;
-    }
-    criticalPutString->V();
-  }
-
-  void SynchConsole::SynchGetString(char * s, int n)
-  {
-    criticalGetString->P();
-    if (n > 0){
-      int i=0;
-
-      do{
-        s[i] = SynchGetChar();
-        i++;
-      }while ((i < n-1) && (s[i-1]!='\n') && (s[i-1]!='\0') && (s[i-1] != EOF));  // EOF valeur retournée par getchar mais on va pas trouver ca dans un char *. a supprimer
-    }
-    criticalGetString->V();
-  }
+  criticalGetString->Release();
+}
 
 
-  #endif // CHANGED
+#endif // CHANGED
