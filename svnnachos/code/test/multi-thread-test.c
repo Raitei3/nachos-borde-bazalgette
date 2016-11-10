@@ -2,7 +2,7 @@
 
 void func();
 
-int nbThread = 49;
+int nbThread = 30;
 char a = 'A';
 
 

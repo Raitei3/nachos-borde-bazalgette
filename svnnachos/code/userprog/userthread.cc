@@ -4,6 +4,7 @@
 Semaphore *threadCreate = new Semaphore("threadCreate",1);
 Semaphore *startThread = new Semaphore("startThread",1);
 Semaphore *threadExit = new Semaphore("threadExit",1);
+Semaphore *test = new Semaphore("test",4);
 
 int threadCountCreated = 1;
 int threadCountDeleted = 0;
@@ -19,6 +20,7 @@ int do_ThreadCreate(int f, int arg) {
     bitmap = new BitMap(4);
     bitmap->Mark(0);
     currentThread->setIdMap(0);
+    test->P();
     }
     threadCountCreated++;
 
@@ -30,6 +32,7 @@ int do_ThreadCreate(int f, int arg) {
   init->arg = arg;
 
   newThread->Start(StartUserThread, init);
+  //printf("test1");
   return 0;
 }
 
@@ -47,9 +50,10 @@ int do_ThreadCreate(int f, int arg) {
   free (init);
 
 
+  test->P();
 
-  startThread->P();
-while (bitmap->NumClear()==0) {currentThread->Yield();}
+  //startThread->P();
+  //while (bitmap->NumClear()==0) {currentThread->Yield();}
 
   if(bitmap -> NumClear() > 0){
 
@@ -60,9 +64,9 @@ while (bitmap->NumClear()==0) {currentThread->Yield();}
     machine->WriteRegister (StackReg, currentThread->space->AllocateUserStack(threadSlot));
     }
 
-    startThread->V();
+  //startThread->V();
   machine->Run();
-
+  //printf("test2");
 
 
   DEBUG ('a', "Initializing thread stack register to 0x%x\n", machine->ReadRegister(StackReg));
@@ -73,6 +77,7 @@ void do_ThreadExit(Thread * t){
 threadExit->P();
   bitmap->Clear(t->getIdMap());
   threadCountDeleted++;
+  test->V();
   if (threadCountDeleted == threadCountCreated){
     delete bitmap;
     delete threadExit;
