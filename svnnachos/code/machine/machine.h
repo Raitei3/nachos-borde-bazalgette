@@ -113,10 +113,6 @@ class Machine:dontcopythis {
 				// for running user programs
     ~Machine();			// De-allocate the data structures
 
-#ifdef CHANGED
-		int copyStringFromMachine(int from, char* to, unsigned size);
-		int copyStringToMachine(int from, char *to, unsigned size);
-#endif
 
 // Routines callable by the Nachos kernel
     void Run();	 		// Run a user program

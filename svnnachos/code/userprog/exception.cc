@@ -29,6 +29,9 @@
 
 #include "userthread.h"
 
+int copyStringFromMachine(int from, char *to, unsigned size);
+int copyStringToMachine(int from, char *to, unsigned size);
+
 #endif //CHANGED
 
 //----------------------------------------------------------------------
@@ -120,7 +123,7 @@ ExceptionHandler (ExceptionType which)
           DEBUG ('s', "call PutString.\n");
           int from = machine -> ReadRegister(4);     //on recupère l'adresse de la chaine
           char to[MAX_STRING_SIZE];                  //on créer notre tampon
-          while (machine -> copyStringFromMachine(from, to , MAX_STRING_SIZE) == MAX_STRING_SIZE )    //on remplit le tampon
+          while (copyStringFromMachine(from, to , MAX_STRING_SIZE) == MAX_STRING_SIZE )    //on remplit le tampon
           {                                                   //on recommence tant qu'on utilise tout le buffer
             synchconsole -> SynchPutString(to);                         //et on envoie le tampon à la console.
             from += MAX_STRING_SIZE-1;
@@ -144,14 +147,14 @@ ExceptionHandler (ExceptionType which)
           {                                                             //de size pour savoir quand on doit s'arrêter
             synchconsole -> SynchGetString(s, MAX_STRING_SIZE);         //ou le nombre de cractere retourné pour savoir si la chaine
                                                                         //s'est finie plus tôt.
-            j=machine -> copyStringToMachine(from+i,s,MAX_STRING_SIZE); //on recopie le contenu du buffer à l'adresse du paramètre
+            j=copyStringToMachine(from+i,s,MAX_STRING_SIZE); //on recopie le contenu du buffer à l'adresse du paramètre
             size -= j;                                                  //de l'appel système
             i += j;
           }
           if(j == MAX_STRING_SIZE-1)
           {
             synchconsole -> SynchGetString(s, size);
-            j=machine -> copyStringToMachine(from+i,s,size);
+            j=copyStringToMachine(from+i,s,size);
           }
           break;
         }
@@ -167,7 +170,7 @@ ExceptionHandler (ExceptionType which)
         int from = machine -> ReadRegister(4);
         machine -> ReadMem(from,4,&value);
         snprintf(s,MAX_STRING_SIZE,"%d",value);
-        machine -> copyStringToMachine(from,s,MAX_STRING_SIZE);
+        copyStringToMachine(from,s,MAX_STRING_SIZE);
         printf("%s\n",s);
         break;
 
@@ -246,3 +249,44 @@ ExceptionHandler (ExceptionType which)
     ASSERT (FALSE);
   }
 }
+
+#ifdef CHANGED
+
+int copyStringFromMachine(int from, char *to, unsigned size){
+
+	int value=0;
+	unsigned i=0;
+	do{
+		machine -> ReadMem(from,1,&value);  //on recopie caractère par caractère dans value
+		char s = (char)value;								// on caste (chose possible avec un int en char)
+		to[i]=s;
+		from++;												      //on incrémente notre adresse virtuelle
+		i++;
+	}while ((i < size-1) && (to[i-1] != '\0'));
+
+	to[i] = '\0';											    //on force toujours l'écriture d'un '\0'
+	i++;
+	return i;
+}
+
+
+int copyStringToMachine(int from, char *to, unsigned size)
+{
+	int value = 0;
+	unsigned i=0;
+	do
+	{
+		value = to[i];
+		machine -> WriteMem(from,1,value);  //on fait l'inverse de ReadMem
+		i++;
+		from++;
+	} while (i < size-1 && to[i-1]!='\0' && to[i-1]!='\n' && to[i-1]!=EOF);
+
+	if (to[i-1]=='\n' && to[i-1]==EOF){
+		machine -> WriteMem(from,1,'\0');				//comme fgets on force l'écriture d'un '\0'
+		i++;
+	}
+	return i;
+}
+
+#endif // CHANGED 

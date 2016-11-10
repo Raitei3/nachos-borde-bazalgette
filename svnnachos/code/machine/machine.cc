@@ -219,44 +219,4 @@ void Machine::WriteRegister(int num, int value)
 	registers[num] = value;
 }
 
-#ifdef CHANGED
 
-int Machine::copyStringFromMachine(int from, char *to, unsigned size){
-
-	int value=0;
-	unsigned i=0;
-	do{
-		machine -> ReadMem(from,1,&value);  //on recopie caractère par caractère dans value
-		char s = (char)value;								// on caste (chose possible avec un int en char)
-		to[i]=s;
-		from++;												      //on incrémente notre adresse virtuelle
-		i++;
-	}while ((i < size-1) && (to[i-1] != '\0'));
-
-	to[i] = '\0';											    //on force toujours l'écriture d'un '\0'
-	i++;
-	return i;
-}
-
-
-int Machine::copyStringToMachine(int from, char *to, unsigned size)
-{
-	int value = 0;
-	unsigned i=0;
-	do
-	{
-		value = to[i];
-		machine -> WriteMem(from,1,value);  //on fait l'inverse de ReadMem
-		i++;
-		from++;
-	} while (i < size-1 && to[i-1]!='\0' && to[i-1]!='\n' && to[i-1]!=EOF);
-
-	if (to[i-1]=='\n' && to[i-1]==EOF){
-		WriteMem(from,1,'\0');				//comme fgets on force l'écriture d'un '\0'
-		i++;
-	}
-	return i;
-}
-
-
-#endif //CHANGED
