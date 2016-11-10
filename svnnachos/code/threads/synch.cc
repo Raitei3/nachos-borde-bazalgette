@@ -148,7 +148,7 @@ Lock::Release () // V
 
 bool
 Lock::isHeldByCurrentThread() {
-  return (currentThread->getName() == name);
+  return (currentThread->getName() == Threadname);
 }
 
 #endif // CHANGED
