@@ -70,12 +70,20 @@ class Semaphore:dontcopythis
 class Lock:dontcopythis
 {
   public:
-    Lock (const char *debugName);	// initialize lock to be FREE
+  Lock (const char *debugName);	// initialize lock to be FREE
      ~Lock ();			// deallocate lock
     const char *getName ()
     {
 	return name;
     }				// debugging assist
+
+    bool isLocked() {
+      return locked;
+    }
+
+    void setLock(bool b) {
+      locked = b;
+    }
 
     void Acquire ();		// these are the only operations on a lock
     void Release ();		// they are both *atomic*
@@ -87,6 +95,11 @@ class Lock:dontcopythis
 
   private:
     const char *name;		// for debugging
+ #ifdef CHANGED
+    const char *threadName;     // thread holding the lock
+    bool locked;
+    List *queue;
+#endif // CHANGED
     // plus some other stuff you'll need to define
 };
 

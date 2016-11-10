@@ -101,28 +101,57 @@ Semaphore::V ()
 // Dummy functions -- so we can compile our later assignments 
 // Note -- without a correct implementation of Condition::Wait(), 
 // the test case in the network assignment won't work!
+
+#ifdef CHANGED
+
 Lock::Lock (const char *debugName)
 {
-    (void) debugName;
-    /* TODO */
-    ASSERT(FALSE);
+    name = debugName;
+    threadName = NULL;
+    setLock(false);
+    queue = new List;
 }
 
 Lock::~Lock ()
 {
+  delete queue;
 }
+
 void
-Lock::Acquire ()
+Lock::Acquire () // P
 {
-    /* TODO */
-    ASSERT(FALSE);
+
+  IntStatus oldLevel = interrupt->SetLevel (IntOff); // peut etre le laisser
+  
+  threadName = currentThread->getName();
+  while(isLocked() == true) {
+    queue->Append ((void *) currentThread);
+    currentThread->Sleep();
+  }
+  setLock(true);
+
+  (void) interrupt->SetLevel (oldLevel); 
 }
+
 void
-Lock::Release ()
+Lock::Release () // V
 {
-    /* TODO */
-    ASSERT(FALSE);
+  Thread *thread;
+  IntStatus oldLevel = interrupt->SetLevel (IntOff);
+  thread = (Thread *) queue->Remove ();
+  if (thread != NULL) {
+    scheduler->ReadyToRun (thread);
+  }
+  setLock(false);
+  (void) interrupt->SetLevel (oldLevel);
 }
+
+bool
+Lock::isHeldByCurrentThread() {
+  return (currentThread->getName() == name);
+}
+
+#endif // CHANGED
 
 Condition::Condition (const char *debugName)
 {
