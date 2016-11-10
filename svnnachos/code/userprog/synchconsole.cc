@@ -83,7 +83,7 @@ SynchConsole::SynchConsole(const char *in, const char *out) {
       do{
         s[i] = SynchGetChar();
         i++;
-      }while ((i < n-1) && (s[i-1]!='\n') && (s[i-1]!='\0') && (s[i-1] != EOF));
+      }while ((i < n-1) && (s[i-1]!='\n') && (s[i-1]!='\0') && (s[i-1] != EOF));  // EOF valeur retournée par getchar, mais on va pas trouver ca dans un char *. a supprimer
     }
     criticalGetString->V();
   }
