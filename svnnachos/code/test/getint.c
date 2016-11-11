@@ -2,8 +2,8 @@
 
 int main()
 {
-  int n[5];
-  n[0]=25468;
+  int n[1];
   GetInt(n);
+  PutInt(n[0]);
   return 0;
 }

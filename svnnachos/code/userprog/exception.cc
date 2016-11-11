@@ -162,30 +162,27 @@ ExceptionHandler (ExceptionType which)
 
 
 
-    /*case SC_GetInt:
-
-    DEBUG ('s', "call GetInt.\n");
-    char s[MAX_STRING_SIZE];
-    int value;
-    int from = machine -> ReadRegister(4);
-    machine -> ReadMem(from,4,&value);
-    snprintf(s,MAX_STRING_SIZE,"%d",value);
-    copyStringToMachine(from,s,MAX_STRING_SIZE);
-    printf("%s\n",s);
-    break;
-
-
     case SC_PutInt:
+    {
+      DEBUG ('s', "call GetInt.\n");
+      char s[MAX_STRING_SIZE];
+      int from = machine -> ReadRegister(4);
+      snprintf(s,MAX_STRING_SIZE,"%d",from);
+      printf("%s\n",s);
+      break;
+    }
 
-    int n;
-    char s[5];
-    synchconsole -> SynchGetString(s, 5);
-    sscanf(s,"%d",&n);
-    machine -> WriteRegister(4,n);
-    printf("%d\n",machine -> ReadRegister(4));
+    case SC_GetInt:
+{
+    int x[1];
+    int n=machine->ReadRegister(4);
+    char s[MAX_STRING_SIZE];
+    synchconsole -> SynchGetString(s, MAX_STRING_SIZE);
+    sscanf(s,"%d",x);
+    machine->WriteMem(n,4,*x);
     break;
+  }
 
-    */
 
     case SC_ThreadCreate:
     {

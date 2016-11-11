@@ -26,9 +26,7 @@ void StartUserThread(void * init) {
   for (int i = 0; i < NumTotalRegs; i++) {
     machine->WriteRegister (i, 0);
   }
-  void (*p)(void);
-  p = &do_ThreadExit;
-
+  
   argInitThread* in = (argInitThread *) init;
   machine->WriteRegister (PCReg, in->fun);
   machine->WriteRegister (NextPCReg, machine -> ReadRegister(PCReg)+4);
