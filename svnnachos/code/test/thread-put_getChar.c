@@ -1,16 +1,13 @@
 #include "syscall.h"
 
 
-int n = 1000 ;
-
 void func(void)
 {
-  char c = 'a',d;
-  while(1) {
-  //c=GetChar();
+  char c = 'a';
   PutChar(c);
-  }
-  ThreadExit();
+  PutChar('\n');
+  //ThreadExit();
+  return 0;
 }
 
 int main()
@@ -18,10 +15,8 @@ int main()
   char c2='b';
   void * v = &(func);
   ThreadCreate(v, 0);
-  while (1) {
-  //c2 = GetChar();
   PutChar(c2);
-  }
-  while (1){}
+  PutChar('\n');
+  //ThreadExit();
   return 0;
 }

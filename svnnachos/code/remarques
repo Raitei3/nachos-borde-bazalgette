@@ -23,21 +23,9 @@ etre la des la partie une.sans doute d'ailleur.
 
 action II.3:
 
-- protection des variable dans userthread
-
--demander au professeur si modifier thread est autorisé
-
-
 quest:
--terminaison auto
--gestion du num du thread dans thread
--fuite mémoire
 -action 2.2: pk devait t'on inclure synch.CC
--lock bien un semaphore a un jeton
--faut t'il étendre la pile
--notre façon de gérer les thread.
 
-
-
-
--rajouter lock dans userthread?
+-commentaire
+-rapport
+-getint PutInt

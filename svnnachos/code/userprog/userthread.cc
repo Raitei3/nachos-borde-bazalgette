@@ -33,8 +33,7 @@ void StartUserThread(void * init) {
   machine->WriteRegister (PCReg, in->fun);
   machine->WriteRegister (NextPCReg, machine -> ReadRegister(PCReg)+4);
   machine->WriteRegister (4, in->arg);
-//  machine->WriteRegister(31, in ->arg2);
-  printf("%d\n",in -> arg2 );
+  machine->WriteRegister(31, in ->arg2);
   free (init);
 
   execThreadSector->P();
@@ -49,6 +48,8 @@ void StartUserThread(void * init) {
 
 void do_ThreadExit(){
   threadExit->Acquire();
+  if(bitmap == NULL)
+    interrupt->Halt();
   bitmap->Clear(currentThread->getIdMap());
   if (bitmap->NumClear() == 4 && scheduler->FindNextToRun() == NULL){
     quit();

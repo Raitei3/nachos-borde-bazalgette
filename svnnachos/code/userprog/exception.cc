@@ -191,8 +191,6 @@ ExceptionHandler (ExceptionType which)
     {
       DEBUG ('s', "call ThreadCreate.\n");
       int thread;
-      printf("%d\n",ReadRegister(6) );
-      WriteRegister(6,&do_ThreadExit)
       thread = do_ThreadCreate(machine -> ReadRegister(4),machine -> ReadRegister(5),machine->ReadRegister(6));
       machine -> WriteRegister(2,thread);
       break;
@@ -265,9 +263,9 @@ int copyStringToMachine(int from, char *to, unsigned size)
     machine -> WriteMem(from,1,value);  //on fait l'inverse de ReadMem
     i++;
     from++;
-  } while (i < size-1 && to[i-1]!='\0' && to[i-1]!='\n' && to[i-1]!=EOF);
+  } while (i < size-1 && to[i-1]!='\0' && to[i-1]!='\n');
 
-  if (to[i-1]=='\n' && to[i-1]==EOF){
+  if (to[i-1]=='\n'){
     machine -> WriteMem(from,1,'\0');				//comme fgets on force l'écriture d'un '\0'
     i++;
   }

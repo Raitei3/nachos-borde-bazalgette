@@ -12,7 +12,6 @@ int main(){
   for (i = 0; i < nbThread; i++) {
     ThreadCreate(v,&a);
   }
-  ThreadExit();
   return 0;
 }
 
@@ -22,6 +21,5 @@ void func(void* c) {
   volatile int i=0;
   for (i=0; i < 3; i++)
     PutChar(*x+i);
-  ThreadExit();
 
 }
