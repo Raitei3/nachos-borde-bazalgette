@@ -96,9 +96,9 @@ ExceptionHandler (ExceptionType which)
         case SC_Exit:
         {
           DEBUG ('s', "Shutdown, initiated auto\n");
-          int ret = machine -> ReadRegister(4); //on récupère la valeur de retour de main
-          printf("Exit(%d)\n",ret);
-          interrupt->Halt ();                   //et on utilise simplement Halt()
+          //int ret = machine -> ReadRegister(4); //on récupère la valeur de retour de main
+          //printf("Exit(%d)\n",ret);
+          do_ThreadExit();                   //et on utilise simplement Halt()
           break;
         }
 
@@ -187,23 +187,13 @@ ExceptionHandler (ExceptionType which)
 
     */
 
-    /*  case SC_PutInt:
-
-    int[]
-    int n = machine -> ReadRegister(4);
-    char s[MAX_STRING_SIZE];
-    snprintf(s,"%d",n);
-
-    break;
-
-    */
-
     case SC_ThreadCreate:
     {
-
       DEBUG ('s', "call ThreadCreate.\n");
       int thread;
-      thread = do_ThreadCreate(machine -> ReadRegister(4),machine -> ReadRegister(5));
+      printf("%d\n",ReadRegister(6) );
+      WriteRegister(6,&do_ThreadExit)
+      thread = do_ThreadCreate(machine -> ReadRegister(4),machine -> ReadRegister(5),machine->ReadRegister(6));
       machine -> WriteRegister(2,thread);
       break;
     }
@@ -211,7 +201,7 @@ ExceptionHandler (ExceptionType which)
     case SC_ThreadExit:
     {
       DEBUG ('s', "call ThreadExit.\n");
-      do_ThreadExit(currentThread);
+      do_ThreadExit();
       break;
     }
 

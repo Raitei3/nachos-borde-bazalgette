@@ -27,11 +27,10 @@ SynchConsole::SynchConsole(const char *in, const char *out) {
   readAvail = new Semaphore("read avail", 0);
   writeDone = new Semaphore("write done", 0);
   criticalPutChar = new Lock("criticalPutChar");
-  console = new Console(in , out , ReadAvailHandler, WriteDoneHandler, 0);
   criticalGetChar = new Lock("criticalGetChar");
   criticalGetString = new Lock("criticalGetString");
   criticalPutString = new Lock("criticalPutString");
-
+  console = new Console(in , out , ReadAvailHandler, WriteDoneHandler, 0);
 }
 
 

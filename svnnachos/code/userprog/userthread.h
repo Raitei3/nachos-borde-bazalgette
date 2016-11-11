@@ -14,12 +14,13 @@
 typedef struct argInitThread {
   int fun;
   int arg;
+  int arg2;
 } argInitThread ;
 
 
-extern int do_ThreadCreate(int f, int arg);
+extern int do_ThreadCreate(int f, int arg,int arg2);
 void StartUserThread(void * init);
-void do_ThreadExit(Thread * t);
+void do_ThreadExit();
 void initFirstThread();
 void quit();
 

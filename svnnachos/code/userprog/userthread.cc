@@ -8,7 +8,7 @@ static Semaphore *execThreadSector = new Semaphore("execThreadSector",4);
 static BitMap * bitmap = NULL;
 //------------------------------------------------------------------
 
-int do_ThreadCreate(int f, int arg) {
+int do_ThreadCreate(int f, int arg,int arg2) {
   if (bitmap == NULL){
     initFirstThread();
   }
@@ -16,6 +16,7 @@ int do_ThreadCreate(int f, int arg) {
   argInitThread * init = (argInitThread *)malloc(sizeof(struct argInitThread));
   init ->fun = f;
   init->arg = arg;
+  init->arg2 = arg2;
   newThread->Start(StartUserThread, init);
   return 0;
 }
@@ -25,10 +26,15 @@ void StartUserThread(void * init) {
   for (int i = 0; i < NumTotalRegs; i++) {
     machine->WriteRegister (i, 0);
   }
+  void (*p)(void);
+  p = &do_ThreadExit;
+
   argInitThread* in = (argInitThread *) init;
   machine->WriteRegister (PCReg, in->fun);
   machine->WriteRegister (NextPCReg, machine -> ReadRegister(PCReg)+4);
   machine->WriteRegister (4, in->arg);
+//  machine->WriteRegister(31, in ->arg2);
+  printf("%d\n",in -> arg2 );
   free (init);
 
   execThreadSector->P();
@@ -41,15 +47,15 @@ void StartUserThread(void * init) {
 }
 
 
-void do_ThreadExit(Thread * t){
+void do_ThreadExit(){
   threadExit->Acquire();
-  bitmap->Clear(t->getIdMap());
+  bitmap->Clear(currentThread->getIdMap());
   if (bitmap->NumClear() == 4 && scheduler->FindNextToRun() == NULL){
     quit();
   }
   threadExit->Release();
   execThreadSector->V();
-  t->Finish();
+  currentThread->Finish();
 }
 
 
