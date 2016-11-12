@@ -24,88 +24,103 @@
 \tableofcontents
 \newpage
 
-\section{Bilan}
-L'objectif de ce TP était d'ajouter quelques appels systèmes à NACHOS.
+\section {Point délicat}
+
+Meme si cette partie 2 étais un peu plus compliqué, les difficulté étais les meme
+que pour la partie 1. Elles se situe principalement dans la compréhension du fonctionement
+de Nachos et dans la capacité a comprendre l'énnoncer et a suivre le guide proposé sans
+partir dans des implémentation compliqué et contre productive. Il faut aussi
+bien prendre le temps de réfléchir avant d'implémenté car tout se qui a étais fait dans
+cette partie se repercutera sur la suivante (la gestion de plusieur processus).
 \newline
-Pour pouvoir travailler en binôme efficacement, nous avons mis en place un dépot git possédant plusieurs branches, de manière à ce que chacun possède une version du projet personnelle, qu'il pourra modifier à son bon vouloir. Ci joint l'adresse du dépot : https://github.com/Raitei3/nachos-borde-bazalgette.git
+Bien évidemment c'est la gestion de plusieur thread simultané qui fut la plus délicate
+a implémenté.
 
-\bigbreak
-\subsection{Découverte du projet}
-Nous avons commencé par découvrir le projet avec la partie II. Nous devions modifier légèrement le code de manière à comprendre comment Nachos gère ses entrées et ses sorties.
-Nous avons appris l'existence de sémaphores, dont le rôle est primordial pour le bon fonctionnement de la console.
-L'un des sémaphores intervient lorsque l'on veut écrire sur la console, en assurant que la requête précédente soit terminée. L'autre sémaphore intervient lorsqu'on veut lire, en assurant qu'il y a quelque chose à lire.
+\subsection{le multi threading}
+\subsubsection{Semaphores et Locks}
+La premiere difficulté a été de comprendre le fonctionnement des semaphores et des locks.
+Dans un premier temps nous n'arrivions pas a savoir comment implémenter les locks, nous somme
+donc partis sur une implementation basique a base de Semaphore. Cela nous a permit d'avancer
+rapidement et nous avons naturelement mieux comprit se qu'etais un semaphore.
+Nous avons rapidement constater que toute les protections que nous mettions en place ne
+devait ne laisser passer qu'un seule thread a la fois. Nous avons comprit a ce moment la qu'un
+lock n'est iren d'autre qu'un Semaphore qui ne distribue qu'un seule jeton.
+Nous avons donc remplacer les Semaphore par des lock dans notre implementation.
 
-\bigbreak
-\subsection{Mise en place d'une console synchrone}
-Ce fonctionnement étant asynchrone et assez contraignant, nous l'avons amélioré dans la partie III, dont le but était d'implémenter une couche d'entrées/sorties synchrones. Nous devions donc créer une console synchronisée qui communique entre l'utilisateur et la console asynchrone.
-Dans cette partie, nous devions implémenter deux fonctions permettant de communiquer caractère par caractère. Nous avons donc fait appel aux fonctions \textcolor{red2}{PutChar} et \textcolor{red2}{GetChar} de la classe Console, tout en nous servant des sémaphores.
-Il s'agissait là d'une simple encapsulation de méthodes afin de nous simplifier le travail plus tard.
+\subsubsection{les piles des threads}
 
-\bigbreak
-\subsection{Ajout d'un appel système}
-Une fois que notre console synchrone fut testée et approuvée, nous nous sommes attaqués à la partie IV dans laquelle il nous était demandé d'implémenter l'appel système \textcolor{blue2}{PutChar}.
+Instancier et éxécuter plusieur thread ne constitue pas de difficulté en soit.
+Faire en sorte qu'il ne s'écrase pas les un les autres et un autre probleme.
+Nachos ne posséde en effet que peut d'espace allouer a sa pile utilisateur.
+On ne peut donc pas raisonablement gerer plus de quatre threads simultanément.
+Pour gérer l'allocation des piles des different threads nous avons utilisé la classe
+bitmap fournit par Nachos. Nous avons également doté la classe thread d'une nouvelle donné
+qui est sa position sur la bitmap. Cela nous a semblé etre la solution la plus simple et
+la plus éfficase a condition de prendre garde a respecter le principe d'encapsulation.
+Dans un premier, l'orsque me thread principale passe pour la premiere fois dans threadCreate
+nous regardont si la bitmap a été instancier. Si ce n'est pas le cas nous l'instancions
+et marquon le thread principale a la premiere place.
+Aprés cela, chaque thread instancier vont prendre le premier slot libre disponible dans
+la bitmap et memorisé le numéro de slot. Puis il appelle AllocateUserStack avec ce
+numéro pour récupérer l'espace d'addressage de la pile.
+Il libére ensuite ce numéro dans thread exit.
+
+\subsubsection{Protection des threads}
+
+A partir de la il reste encore un probleme majeur a gérer. En effet nous n'avons absolument
+pas la main sur l'ordonanceur et nous ne pouvons pas prédire le moment ou les threads
+vont essayer de se lancer. Il faut donc mettre en attente les threads qui voudrait
+s'allouer une pile avant que des place soit liberer. Au début nous avions décider
+d'appeler thread->yield(); qui remet le thread dans la liste d'attente de l'ordonenceur.
+Mais nous avons appris que cette technique impliqué de réveillé réguliérement les
+thread en attente pour rien se qui gacher du temps d'éxécution.
+Nous avons donc fait un gros semaphore qui laisse passé 4 threads(le nombre max de thread
+simultané) et dont l'entré se situe au début de startUserThread et la sortie au threadExit.
+
+\subsubsection{Terminaison Automatique}
+Un autre gros soucis nous est arrivé l'orsque nous avons voulut implémenter la terminaison
+automatique des threads. Le thread principal finit par defaut par l'appelle systeme Exit
+qui interront la machine.
+Nous avons envisager deux solution:
+La premiere consistait a utiliser une variable pour conté le nombre de threads utilisateur actif
+et d'appeler thread->yield tant que celle ci n'est pas a 0 pour faire attentre le thread principal
+au niveau de l'appel systeme Exit. Nous avons décider d'écarter cette solution car yield()
+consomme du temps(meme si ce n'est que sur le thread principale)
+La deuxieme était d'appeler ThreadExit dans Exit et d'utiliser la bitmap pour appeler interrupt-Halt()
+lorsque celle ci est vide.
+
+
+\section{Limitation}
+
+Cette partie du rapport est encore une fois la plus difficile a rédiger. En effet
+meme si notre compréhension global du fonctionnement de Nachos a bien évoluer dans
+cette partie, il reste trés difficile de savoir ou se situe les défaut de notre
+implémentation (dans la mesure ou nos test fonctionne). D'autant qu'il s'agit surtout
+de savoir si nos choix d'implémentation sont les bons pour la suite du projet (la gestion
+de plusieur processus) et que cela reste trés difficile a certifier.
 \newline
-Nous avons tout d'abord édité le fichier \textcolor{vert2}{syscall.h} pour ajouter \textcolor{blue2}{PutChar} dans la liste des appels systèmes valides, et ajouter la définition de la fonction utilisateur correspondante.
-Nous avons par la suite modifié le fichier assembleur \textcolor{vert2}{start.S} pour ajouter la définition de \textcolor{blue2}{PutChar}.
-Enfin, dans le fichier \textcolor{vert2}{exception.cc}, nous avons implémenté le fonctionnement de notre appel système grâce à notre console synchrone. \textcolor{blue2}{PutChar} appelle la fonction de la console synchrone \textcolor{red2}{SynchPutChar}, qui pousse sur la sortie un caractère récupéré dans le registre 4 qui est le paramètre de notre appel système.
-
-\bigbreak
-\subsection{Ecriture de chaines de caractères}
-Notre travail dans cette partie était d'améliorer notre console synchrone en lui ajoutant une fonction qui puisse écrire des chaines de caractères. Pour cela nous avons du implémenter une fonction \textcolor{red2}{copyStringFromMachine} qui est similaire à la fonction C \textcolor{red2}{strcpy}. Cette fonction copie une chaine de caractère du monde utilisateur vers le noyau, et fait donc la liaison entre ces deux espaces.
-Ce transfert d'une adresse virtuelle à une adresse physique est nécessaire afin de garantir la sécurité du noyau.
-\newline \newline
-Nous avons d'abord décidé de la placer dans le fichier \textcolor{vert2}{exception.cc}, car c'est là que nous l'appelons. Cependant, nous n'étions pas satisfaits de cet emplacement, c'est pour ça que nous l'avons finalement placée dans \textcolor{vert2}{machine.cc}, tout en en faisant une méthode de la classe Machine.
-Ce choix nous a paru judicieu car machine inclut translate.h par défaut et qu'il parait logique pour les objets de type de machine de pouvoir utiliser cette fonction.
-\newline \newline
-Nous avons par la suite ajouté l'appel système \textcolor{blue2}{PutString} (de manière analogue à \textcolor{blue2}{PutChar}), qui récupère la chaine de caractères entrée par l'utilisateur via la méthode \textcolor{red2}{copyStringFromMachine}, puis qui appelle la fonction \textcolor{red2}{SynchPutString} de notre console synchrone pour écrire cette chaine.
-Au départ, notre implémentation gérait mal les chaines de caractères trop longues car elle les tronquait si elles étaient plus longues que MAX\_STRING\_SIZE. Nous détaillerons ce problème que nous avons résolu dans la partie 1.6.
-
-\bigbreak
-\subsection{Halt automatique et valeur de retour du main}
-Lorsqu'on enlève l'appel à \textcolor{blue2}{Halt} à la fin du main, on reçoit une erreur "Uninplemented system call 1". On remarque dans le fichier \textcolor{vert2}{syscall.h}, l'appel système 1 correspond à \textcolor{blue2}{Exit}.
 \newline
-Ce dernier n'étant pas implémenté, il est normal que le programme renvoie une erreur. Pour résoudre ce problème, nous avons implémenté l'appel système \textcolor{blue2}{Exit}, qui fait un appel à \textcolor{blue2}{Halt}. Nous n'avons désormais plus besoin d'appeler \textcolor{blue2}{Halt} à la fin de nos main puisque \textcolor{blue2}{Exit} le fait systématiquement.
-\newline \newline
-Pour prendre en compte la valeur de retour du main, nous avons modifié le code de l'appel système \textcolor{blue2}{Exit} dans le code assembleur, en plaçant le registre 2 dans le registre 4 au moment de l'appel à \textcolor{blue2}{Exit}. Le registre 2 étant le paramètre de retour du main, et le registre 4 le paramètre d'\textcolor{blue2}{Exit}. nous avons ensuite modifié exception.cc pour que \textcolor{blue2}{Exit} affiche cette valeur de retour.
+Dans l'ensemble nous dirions que notre implementation se veut simple et fonctionnel.
+Nous penssons etre allé a l'éssentiel sans nous compliqué la vie et avoir réussi a faire
+un code qui fonctionne en collant au plus prés des conseille du tp.
+Nous n'avons pas réperer de bug, les tests éffectuer termine tous convenablement. Nous gerons plusieur
+cas de figure notament ceux ou le thread principale appelle un thread qui appelle un thread
+etc...
+\newline
+\newline
+Nous avons quand meme une petite fuite memoire que nous n'arrivons pas a
+supprimer.(1 block possiblement perdu d'aprés valgrind)
+Mais notre inquiétude majeur est de savoir si nous avons fait les bon choix d'impélmentation
+pour la suite du tp. En effet nous avons énormément centralisé le fonctionnement des
+threads et de tout se qui les entoures dans le fichier userthread.cc les fonction do_threadExit
+do_threadCreate et StartUserThread.
+De l'instanciation et l'utilisation des lock et des Semaphore a la bitmap en passant par
+l'interruption meme de la machine l'orsque qu'il ne reste plus aucun thread a éxécuter. Tout
+ce gere dans userthread.cc.
+Cependant nous relativisons la gravité d'une erreur a ce niveau la, car nous penssons que si
+des modification doive etre faite plus tard il s'agira plus de déplacer l'implementation éxistante que de
+la modifier se qui ne représente pas la mème quantité de travail.
 
-\bigbreak
-\subsection{Lecture de chaines de caractères}
-Dans cette partie, nous avons ajouté à notre console synchrone la possibilité de lire des chaines de caractères. Nous avons donc commencé par implémenter l'appel système \textcolor{blue2}{GetChar}. Nous avons ensuite complété la fonction \textcolor{red2}{SynchGetString} de notre console. Après celà, nous avons ajouté l'appel système \textcolor{blue2}{GetString}, par analogie à \textcolor{blue2}{PutString}, en implémentant une fonction \textcolor{red2}{copyStringToMachine} qui, à l'inverse de \textcolor{red2}{copyStringFromMachine}, copie une chaine du monde noyau vers le monde utilisateur.
-\newline \newline
-La consigne précisait qu'il fallait construire \textcolor{blue2}{GetString} sur le modèle de la fonction C \textcolor{red2}{fgets}. Nous avons donc respecté les fonctionalités de \textcolor{red2}{fgets}, comme par exemple le fait que la fonction s'arrête quand elle rencontre un retour chariot. si la longueur de la chaine de caractère qui doit être lue est plus longue que la taille du tampon noyau, on appelle \textcolor{red2}{SynchGetString} autant de fois qu'il faut en réutilisant le tampon. Ainsi, on garantit qu'il n'y ait pas de débordement.
-
-\bigbreak
-\subsection{Avancement du projet}
-Nous avons traité les parties I à VI, excepté la partie VI.4 sur \textcolor{blue2}{PutInt} et \textcolor{blue2}{GetInt}. Nous avons testé tous nos appels systèmes, qui fonctionnent. Nous n'avons pas eu le temps de nous intéresser à la partie VII. Cependant, celà ne pose pas de problème technique car cette partie est indépendante des autres.
-
-\bigbreak
-\bigbreak
-\section {Points Délicats}
-La première réelle difficulté que nous avons rencontré était l'implémentation de la fonction \textcolor{red2}{copyStringFromMachine}. En effet, nous avons été perturbé par le fait que l'adresse from soit de type entier. Cependant, nous nous sommes vite rendus compte que celà ne posait pas de problème particulier.
-\newline \newline
-Un autre problème que nous avons rencontré a été de comprendre comment prendre en compte la valeur de retour du main, car nous ne trouvions pas quel fichier appelait le main. Encore une fois, le problème s'est résolu rapidement quand nous avons trouvé que c'était \textcolor{vert2}{start.S}.
-\newline \newline
-Nous avons également rencontré un problème à la partie VII.4, ou il était demandé d'implémenter les appels système \textcolor{blue2}{PutInt} et \textcolor{blue2}{GetInt}. Nous avons eu du mal à comprendre ce que doivent faire ces appels, et n'avons donc pas fini cette partie par manque de temps.
-Nous avons tout de même essayé d'implémenter une fonction \textcolor{red2}{atoi} et son inverse (mais nous ne sommes pas certains que celà corresponde à la consigne). Ce que nous avons essayé de faire se trouve néanmoins en commentaire dans \textcolor{vert2}{exception.cc}.
-\newline \newline
-La gestion des différentes tailles de chaines de caractères a été la partie la plus compliquée. il fallait faire attention à tout les cas de figure possibles et bien veiller à ne rien perdre en route ou à en écrire trop. Nous avons cependant fini par réussir à créer des appels système qui semblent avoir le comportement attendu en toute circonstance.
-\bigbreak
-\bigbreak
-\section {Limitations}
-Lors de notre implémentation, nous avons fait en sorte de respecter au mieux les consignes. Par exemple, nous garantissons qu'un '$\backslash$0' soit forcé dans la méthode \textcolor{red2}{copyStringFromMachine}. Nous nous assurons également que l'appel \textcolor{blue2}{GetString} fonctionne de manière identique à \textcolor{red2}{fgets}, en faisant attention aux détails (par exemple lire au plus size-1 caractères).
-Malgré celà, nous sommes conscients que notre compréhension globale du projet a des limites dans la mesure ou nous ne savons pas comment tout fonctionne, et bien que nous n'avons pas à connaitre l'intégralité du fonctionnement de Nachos, il nous est arrivé régulièrement de ne pas comprendre certains méchanismes internes que nous aurions aimé assimiler.
-Ainsi, même si tout semble correspondre à la demande de l'énoncé, il est possible que nous ayons à revenir sur notre code dans le TP2 suite à des comportements innatendus et difficilement prévisibles.
-
-
-
-\section {Tests}
-
-Nous avons créé un programme de test pour chacun des appels système. Ces tests sont tous accessibles dans le dossier test et éxécutables en utilisant le paramètre -x de nachos dans le dossier userprog.
-Nous avons surtout mis a l'épreuve notre gestion des chaines de caractères en faisant varier les tailles de chaines de caracteres à tester. Nous avons également pris soin de toujours utiliser Valgrind afin de vérifier qu'il n'y ait pas de fuites memoire.
-Nous avons cependant été limités dans la création de tests simples, complets et efficaces car nous n'avons pas bien compris comment fonctionne la compilation des tests dans ce projet. Nous n'arrivons pas à inclure d'autres fichiers, ce qui nous a empéché d'utiliser les outils de la bibliothèque C.
-\newline \newline
-Nous avons manqué de temps pour résoudre ce problème car au moment de la création des derniers test, il était trop tard pour espérer une réponse de la part des professeurs.
-Nous espérons néanmoins résoudre ce probleme et fournir des tests plus convainquants plus tard, car si celà n'est pas trop pénalisant sur cette partie, ça ne sera pas forcément le cas lors du TP sur les threads, où de solides tests seront nécessaires.
 
 
 
