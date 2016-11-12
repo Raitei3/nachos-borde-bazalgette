@@ -29,3 +29,4 @@ quest:
 -commentaire
 -rapport
 -getint PutInt
+-vérifier les valeur de retour des appels systeme.

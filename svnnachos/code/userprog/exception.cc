@@ -174,12 +174,12 @@ ExceptionHandler (ExceptionType which)
 
     case SC_GetInt:
 {
-    int x[1];
+    int x = 0;
     int n=machine->ReadRegister(4);
     char s[MAX_STRING_SIZE];
     synchconsole -> SynchGetString(s, MAX_STRING_SIZE);
-    sscanf(s,"%d",x);
-    machine->WriteMem(n,4,*x);
+    sscanf(s,"%d",&x);
+    machine->WriteMem(n,4,x);
     break;
   }
 

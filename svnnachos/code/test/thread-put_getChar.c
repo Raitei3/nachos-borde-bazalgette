@@ -1,13 +1,18 @@
 #include "syscall.h"
 
 
-void func(void)
+void func2(void)
 {
   char c = 'a';
   PutChar(c);
   PutChar('\n');
   //ThreadExit();
   return 0;
+}
+
+void func(void){
+  void * w = &(func2);
+  ThreadCreate(w,0);
 }
 
 int main()
