@@ -1,5 +1,7 @@
 #include "syscall.h"
 
+// Ce test créer un thread qui lui meme créer un thread
+// doit retourner a et b et terminer correctement
 
 void func2(void)
 {
