@@ -192,11 +192,11 @@ ExceptionHandler (ExceptionType which)
     {
       DEBUG ('s', "call ThreadCreate.\n");
       int thread;
-      nbThreadCreated++;// on increment le compteur de thread créer.
-      int addrThreadExit = machine-> ReadRegister(6);//on recupere l'addresse de ThreadExit
+      nbThreadCreated++;   // on incrémente le compteur de thread créé.
+      int addrThreadExit = machine-> ReadRegister(6);  //on recupère l'adresse de ThreadExit
 
       thread = do_ThreadCreate(machine -> ReadRegister(4),machine -> ReadRegister(5),addrThreadExit,nbThreadCreated);
-      machine -> WriteRegister(2,thread);// on écrit la valeur de retour de ThreadCreate
+      machine -> WriteRegister(2,thread);  // on écrit la valeur de retour de ThreadCreate
       break;
     }
 

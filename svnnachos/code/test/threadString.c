@@ -1,7 +1,7 @@
 #include "syscall.h"
 
-// Teste GetString sur plusieur thread
-// Doit retourner les deux chaine entré par l'utilisateur.
+/* Teste GetString sur plusieurs threads
+ Doit retourner les deux chaines entrées par l'utilisateur. */
 
 void funcString(void)
 {

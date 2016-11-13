@@ -1,8 +1,8 @@
 #include "syscall.h"
 
-//Test l'éxécution d'un grand nombre de thread
-// doit retourner 30 * ABC soit 90 lettre
-//(l'ordre est aléatoire et dépend de l'ordonanceur).
+/*Teste l'exécution d'un grand nombre de threads.
+* doit retourner 30 * ABC soit 90 lettres
+(l'ordre est aléatoire et dépend de l'ordonnanceur). */
 
 
 void func();

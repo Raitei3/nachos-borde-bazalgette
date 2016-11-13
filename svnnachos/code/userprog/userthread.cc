@@ -13,13 +13,13 @@ static char s[255];
 //------------------------------------------------------------------
 
 int do_ThreadCreate(int f, int arg,int addr,int nbThreadCreated) {
-  threadCreate -> Acquire();//on protege avec un lock
-  //peut servir si on fait créer des thread en cascade.
+  threadCreate -> Acquire(); //on protège avec un lock.
+  //peut servir si on créé des threads en cascade.
 
-  if (bitmap == NULL){  // on regarde si la bitmap est instancier et si ce
+  if (bitmap == NULL){  // on regarde si la bitmap est instanciée et si ce
     initFirstThread();  // n'est pas le cas on sait qu'on doit tout initialiser.
   }
-  sprintf(s,"UserTread-%d",nbThreadCreated);//on genere le nom du thread en utilisant nbThreadCreated
+  sprintf(s,"UserTread-%d",nbThreadCreated); //on genère le nom du thread en utilisant nbThreadCreated
 
   Thread * newThread = new Thread(s);
   argInitThread * init = (argInitThread *)malloc(sizeof(struct argInitThread));
@@ -45,11 +45,11 @@ void StartUserThread(void * init) {
   machine->WriteRegister (PCReg, in->fun);
   machine->WriteRegister (NextPCReg, machine -> ReadRegister(PCReg)+4);
   machine->WriteRegister (4, in->arg);
-  machine->WriteRegister(31, in ->addrThreadExit);//on met l'adresse de threadExit
-  //dans le registre de retour.
+  machine->WriteRegister(31, in ->addrThreadExit); //on met l'adresse de threadExit
+                                                   //dans le registre de retour.
   free (init);
 
-  execThreadSector->P();//Le Semaphore principale qui empeche + de 4 thread d'etre actif en meme temps
+  execThreadSector->P();  //Le Semaphore principal qui empèche + de 4 threads d'être actifs en meme temps
 
   int threadSlot = bitmap->Find();
   currentThread -> setIdMap(threadSlot);
@@ -62,11 +62,11 @@ void StartUserThread(void * init) {
 
 void do_ThreadExit(){
 
-  threadExit->Acquire();//on protege la bitmap d'éventuel accé concurrent
+  threadExit->Acquire();  //on protege la bitmap d'éventuel accé concurrent
   bitmap->Clear(currentThread->getIdMap());
   threadExit->Release();
 
-  execThreadSector->V();//on rend un jeton la place est desormait libre
+  execThreadSector->V();  //on rend un jeton : la place est desormais libre
   currentThread->Finish();
 }
 
@@ -79,7 +79,7 @@ void initFirstThread(){
 }
 
 
-// Libere les objets créer
+// Libère les objets créés
 void quit(){
   delete bitmap;
   delete threadExit;
