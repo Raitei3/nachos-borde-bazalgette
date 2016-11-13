@@ -201,6 +201,9 @@ ExceptionHandler (ExceptionType which)
     case SC_ThreadExit:
     {
       DEBUG ('s', "call ThreadExit.\n");
+      if(strcmp(currentThread->getName( ),"main")==0){
+        break;
+      }
       nbThreadDeleted++;
       do_ThreadExit();
       break;

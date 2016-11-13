@@ -23,6 +23,9 @@ int do_ThreadCreate(int f, int arg,int arg2) {
 
   Thread * newThread = new Thread(s);
   argInitThread * init = (argInitThread *)malloc(sizeof(struct argInitThread));
+  if (init==NULL || newThread==NULL){
+    return -1;
+  }
   init ->fun = f;
   init->arg = arg;
   init->arg2 = arg2;
