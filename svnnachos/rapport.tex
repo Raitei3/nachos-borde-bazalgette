@@ -1,4 +1,4 @@
-\documentclass[10pt]{article}
+\documentclass[11pt]{article}
 
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
@@ -19,12 +19,16 @@
 \title{Projet système : Nachos TP 2}
 \author{Martin BAZALGETTE, Antoine BORDE}
 \maketitle
-
+Adresse du dépot : https://github.com/Raitei3/nachos-borde-bazalgette.git
 \newpage
 \tableofcontents
 \newpage
 
+
+
+
 \section{Bilan}
+
 L'objectif de ce TP était de permettre l'exécution de threads simultanés.
 Nous avons fini toutes les parties excepté la dernière concernant la mise en place de sémaphores pour l'utilisateur, car nous avons manqué de temps.
 Nous avons également implémenté les appels système \textcolor{blue2}{PutInt} et \textcolor{blue2}{GetInt},
@@ -46,8 +50,7 @@ Nous avons commencé par définir la fonction \textcolor{red2}{do\_ThreadCreate}
 Nous avons ensuite défini une fonction \textcolor{red2}{StartUserThread}, qui est lancée par le thread Nachos, lorsque ce dernier est activé par l'ordonnanceur.
 La fonction \textcolor{red2}{StartUserThread} initialise les registres et alloue un espace dans la pile au thread l'ayant appelée. Elle lance par la suite \textcolor{red2}{Machine->Run} pour lancer la console.
 Une fois le thread utilisateur lancé, il nous fallait définir un appel système \textcolor{blue2}{ThreadExit} pour terminer le thread et libérer l'espace de la pile.
-Cet appel invoque la méthode \textcolor{red2}{Finish} de la classe Thread.
-\newpage
+
 \subsection{Gestion de plusieurs threads}
 Pour l'instant, si on essaye de lancer plusieurs threads simultanément, ils se chevauchent et s'écrasent, car l'espace qu'on leur fournit est exactement le même.
 Pour résoudre ce problème, il nous était demandé dans un premier temps de verrouiller les traitements de synchconsole grâce à des sémaphores. Ainsi, le deuxième thread attend que le premier soit terminé pour se lancer. Il faut protéger tous les appels systèmes, notamment \textcolor{blue2}{SynchPutString} et \textcolor{blue2}{SynchGetString}, car même si elles font appel à \textcolor{blue2}{SynchPutChar} et \textcolor{blue2}{SynchGetChar} qui sont protégées, ces appels se font par plusieurs threads simultanément et tout est constamment écrasé.
@@ -62,8 +65,7 @@ par la taille de la pile
 \newline
 Pour pallier cette limite , il nous était demandé dans la partie suivante de permettre la réutilisation de l'espace pile libéré.
 Pour cela, nous avons utilisé la classe BitMap, qui gère la disponibilité des 4 espaces de la pile.
-Grâce à cette technique, l'utilisateur peut désormais lancer autant
-de threads qu'il le souhaite.
+
 
 \subsection{Terminaison automatique}
 La dernière chose que nous avons implémentée permet la terminaison automatique des threads. Jusque là, quand un thread n'appelait pas \textcolor{blue2}{ThreadExit}, Nachos ne terminait pas correctement.
@@ -139,7 +141,7 @@ consomme du temps (même si ce n'est que sur le thread principal)
 La deuxième était d'appeler \textcolor{blue2}{ThreadExit} dans \textcolor{blue2}{Exit} et d'utiliser la bitmap pour appeler interrupt-Halt()
 lorsque celle-ci est vide.
 
-
+\newpage
 \section{Limitations}
 
 Cette partie du rapport est encore une fois la plus difficile à rédiger. En effet
@@ -154,7 +156,6 @@ Nous pensons être allés à l'essentiel sans nous compliquer la vie et avoir r�
 un code qui fonctionne en collant au plus près des conseils du tp.
 Nous n'avons pas repéré de bug, les tests effectués terminent tous convenablement. Nous gérons plusieurs
 cas de figure notamment ceux où le thread principal appelle un thread qui appelle un thread.
-\newpage
 Nous avons néanmoins une petite fuite mémoire que nous n'arrivons pas a
 supprimer (un block possiblement perdu d'âpres valgrind).
 Cependant notre inquiétude majeure est de savoir si nous avons fait les bons choix d'implémentation
