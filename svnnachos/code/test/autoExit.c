@@ -1,5 +1,10 @@
 #include "syscall.h"
 
+/* Vérifie que tout s'éxit correctement sans appel a threadExit
+ * et ceux sur un grand nombre de thread
+ *Doit retourner 20 A */
+
+
 void func();
 
 int nbThread = 20;

@@ -1,5 +1,10 @@
 #include "syscall.h"
 
+//Test l'éxécution d'un grand nombre de thread
+// doit retourner 30 * ABC soit 90 lettre
+//(l'ordre est aléatoire et dépend de l'ordonanceur).
+
+
 void func();
 
 int nbThread = 30;

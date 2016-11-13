@@ -1,5 +1,8 @@
 #include "syscall.h"
 
+/* Vérifie qu'il n'y a pas d'erreur a l'apelle de threadExit pour le userThread et le  main
+  *Doit retourner 2* test et terminer sans erreur.*/
+
 char *c = "test\n";
 
 void func() {
