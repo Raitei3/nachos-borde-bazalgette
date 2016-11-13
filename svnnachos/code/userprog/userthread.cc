@@ -1,9 +1,10 @@
 #ifdef CHANGED
 #include "userthread.h"
 #include "scheduler.h"
+#include "syscall.h"
 
 static Lock *threadExit = new Lock("threadExit");
-static Semaphore *execThreadSector = new Semaphore("execThreadSector",4);
+static Semaphore *execThreadSector = new Semaphore("execThreadSector",3);
 static Lock *threadCreate = new Lock("threadCreate");
 
 static BitMap * bitmap = NULL;
@@ -54,15 +55,9 @@ void StartUserThread(void * init) {
 
 
 void do_ThreadExit(){
-  if(bitmap == NULL){
-    interrupt->Halt();
-  }
-  
+
   threadExit->Acquire();
   bitmap->Clear(currentThread->getIdMap());
-  if (bitmap->NumClear() == 4 && scheduler->FindNextToRun() == NULL){
-    quit();
-  }
   threadExit->Release();
   execThreadSector->V();
   currentThread->Finish();
@@ -73,7 +68,6 @@ void initFirstThread(){
   bitmap = new BitMap(4);
   bitmap->Mark(0);
   currentThread->setIdMap(0);
-  execThreadSector->P();
 }
 
 
@@ -82,7 +76,6 @@ void quit(){
   delete threadExit;
   delete threadCreate;
   printf("\n");
-  interrupt->Halt();
 }
 
 
