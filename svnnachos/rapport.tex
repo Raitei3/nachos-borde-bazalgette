@@ -27,48 +27,50 @@
 \section{Bilan}
 L'objectif de ce TP était de permettre l'exécution de threads simultanés.
 Nous avons fini toutes les parties excepté la dernière concernant la mise en place de sémaphores pour l'utilisateur, car nous avons manqué de temps.
-Nous avons également implémenté les appels système PutInt et GetInt,
+Nous avons également implémenté les appels système \textcolor{blue2}{PutInt} et \textcolor{blue2}{GetInt},
 que nous n'avions pas compris lors du premier TP. Ainsi que corrigé toutes les erreurs qui
 nous ont été signaler lors de la remise du rapport.
+\newline
 Tout ce que nous avons implémenté fonctionne, nous pouvons donc lancer autant de threads que nous voulons qui se termineront automatiquement.
 D'autre part, bien que nous nous attendions à devoir revenir sur la partie précédente pour corriger des bugs inattendus, nous n'avons eu aucune mauvaise surprise et n'avons donc pas eu à modifier le code du TP1.
 
 \subsection{Découverte du fonctionnement des threads Nachos}
 Les 2 premières actions de la partie I nous ont permis de comprendre le fonctionnement des threads de Nachos. En effet nous avons repéré que les threads étaient initialisés dans le constructeur de la classe Thread. Nous avons également vu que la pile des threads Nachos se trouvait dans un espace mémoire réservé au noyau.
-Par la suite, nous avons compris comment l'espace mémoire des threads était géré grâce aux objets AddrSpace, et comment ils se terminaient, en sautant à l'adresse de l'appel système Exit.
+Par la suite, nous avons compris comment l'espace mémoire des threads était géré grâce aux objets AddrSpace, et comment ils se terminaient, en sautant à l'adresse de l'appel système \textcolor{blue2}{Exit}.
 
 \subsection{Implémentation d'un thread utilisateur unique}
 Une fois le fonctionnement des threads compris, nous sommes passés à l'implémentation d'un thread utilisateur.
-Pour ce faire, nous avons dû ajouter un appel système ThreadCreate, qui créé un thread utilisable par l'utilisateur. Le thread lancera l'exécution d'une fonction définie par l'utilisateur.
-Nous avons commencé par définir la fonction do\_ThreadCreate, qui crée un thread Nachos, et récupère la fonction de l'utilisateur et ses arguments. On place ensuite le thread dans la file d'attente de l'ordonnanceur via la fonction Start.
-Nous avons ensuite défini une fonction StartUserThread, qui est lancée par le thread Nachos, lorsque ce dernier est activé par l'ordonnanceur.
-La fonction StartUserThread initialise les registres et alloue un espace dans la pile au thread l'ayant appelée. Elle lance par la suite machine->Run pour lancer la console.
-Une fois le thread utilisateur lancé, il nous fallait définir un appel système ThreadExit pour terminer le thread et libérer l'espace de la pile.
-Cet appel invoque la méthode finish de la classe Thread.
-
+Pour ce faire, nous avons dû ajouter un appel système \textcolor{blue2}{ThreadCreate}, qui créé un thread utilisable par l'utilisateur. Le thread lancera l'exécution d'une fonction définie par l'utilisateur.
+\newline
+Nous avons commencé par définir la fonction \textcolor{red2}{do\_ThreadCreate}, qui crée un thread Nachos, et récupère la fonction de l'utilisateur et ses arguments. On place ensuite le thread dans la file d'attente de l'ordonnanceur via la fonction \textcolor{red2}{Start}.
+Nous avons ensuite défini une fonction \textcolor{red2}{StartUserThread}, qui est lancée par le thread Nachos, lorsque ce dernier est activé par l'ordonnanceur.
+La fonction \textcolor{red2}{StartUserThread} initialise les registres et alloue un espace dans la pile au thread l'ayant appelée. Elle lance par la suite \textcolor{red2}{Machine->Run} pour lancer la console.
+Une fois le thread utilisateur lancé, il nous fallait définir un appel système \textcolor{blue2}{ThreadExit} pour terminer le thread et libérer l'espace de la pile.
+Cet appel invoque la méthode \textcolor{red2}{Finish} de la classe Thread.
+\newpage
 \subsection{Gestion de plusieurs threads}
 Pour l'instant, si on essaye de lancer plusieurs threads simultanément, ils se chevauchent et s'écrasent, car l'espace qu'on leur fournit est exactement le même.
-Pour résoudre ce problème, il nous était demandé dans un premier temps de verrouiller les traitements de synchconsole grâce à des sémaphores. Ainsi, le deuxième thread attend que le premier soit terminé pour se lancer. Il faut protéger toutes les fonctions, notamment SynchPutString et SynchGetString, car même si elles font appel à SynchPutChar et SynchGetChar qui sont protégées, ces appels se font par plusieurs threads simultanément et tout est constamment écrasé.
-
-Nous avons ensuite du améliorer l'appel système threadExit, car Nachos ne terminait pas correctement si le thread principal et le thread utilisateur appelaient tous les deux threadExit. Nous avons
-résolu ce problème en plaçant interrupt->Halt() dans la fonction do\_ThreadExit.
-
+Pour résoudre ce problème, il nous était demandé dans un premier temps de verrouiller les traitements de synchconsole grâce à des sémaphores. Ainsi, le deuxième thread attend que le premier soit terminé pour se lancer. Il faut protéger tous les appels systèmes, notamment \textcolor{blue2}{SynchPutString} et \textcolor{blue2}{SynchGetString}, car même si elles font appel à \textcolor{blue2}{SynchPutChar} et \textcolor{blue2}{SynchGetChar} qui sont protégées, ces appels se font par plusieurs threads simultanément et tout est constamment écrasé.
+\newline
+Nous avons ensuite du améliorer l'appel système \textcolor{blue2}{ThreadExit}, car Nachos ne terminait pas correctement si le thread principal et le thread utilisateur appelaient tous les deux \textcolor{blue2}{ThreadExit}. Nous avons
+résolu ce problème en plaçant \textcolor{red2}{Interrupt->Halt} dans la fonction \textcolor{red2}{do\_ThreadExit}.
+\newline
 Par la suite, il nous était demandé de permettre l'allocation de plusieurs threads dans des endroits différents de la pile, sans se soucier de la réutilisation de l'espace libéré par les threads terminés.
 Cette méthode permet de lancer jusqu'a 3 threads utilisateur, car la pile n'est pas assez grande pour permettre à un quatrième thread de se lancer. Il y a donc 4 espaces dans la pile qui peuvent être utilisés par un thread.
 Le nombre de threads que l'utilisateur peut lancer est donc limité
 par la taille de la pile
-
+\newline
 Pour pallier cette limite , il nous était demandé dans la partie suivante de permettre la réutilisation de l'espace pile libéré.
 Pour cela, nous avons utilisé la classe BitMap, qui gère la disponibilité des 4 espaces de la pile.
 Grâce à cette technique, l'utilisateur peut désormais lancer autant
 de threads qu'il le souhaite.
 
 \subsection{Terminaison automatique}
-La dernière chose que nous avons implémentée permet la terminaison automatique des threads. Jusque là, quand un thread n'appelait pas threadExit, Nachos ne terminait pas correctement.
-Pour que les threads terminent automatiquement, nous avons rajouté un argument invisible pour l'utilisateur à do\_ThreadCreate. Cet argument correspond à l'adresse de l'appel système threadExit.
-On place ensuite cette adresse dans le registre 31, qui correspond à l'adresse de retour de l'appel système. Ainsi, dès qu'un thread termine sa tâche, il appelle threadExit automatiquement.
+La dernière chose que nous avons implémentée permet la terminaison automatique des threads. Jusque là, quand un thread n'appelait pas \textcolor{blue2}{ThreadExit}, Nachos ne terminait pas correctement.
+Pour que les threads terminent automatiquement, nous avons rajouté un argument invisible pour l'utilisateur à \textcolor{red2}{do\_ThreadCreate}. Cet argument correspond à l'adresse de l'appel système \textcolor{blue2}{ThreadExit}.
+On place ensuite cette adresse dans le registre 31, qui correspond à l'adresse de retour de l'appel système. Ainsi, dès qu'un thread termine sa tâche, il appelle \textcolor{blue2}{ThreadExit} automatiquement.
 
-
+\newpage
 \section {Points délicats}
 
 Même si cette partie 2 était un peu plus compliquée, les difficultés étaient les mêmes
@@ -100,15 +102,17 @@ Nachos ne possède en effet que peu d'espace alloué à sa pile utilisateur.
 On ne peut donc pas raisonnablement gérer plus de quatre threads simultanément.
 Pour gérer l'allocation des piles des différents threads, nous avons utilisé la classe
 bitmap fournie par Nachos. Nous avons également doté la classe thread d'une nouvelle donnée
-qui est sa position sur la bitmap. Cela nous a semblé être la solution la plus simple et
+qui est sa position sur la bitmap.
+Cela nous a semblé être la solution la plus simple et
 la plus efficace à condition de prendre garde à respecter le principe d'encapsulation.
-Dans un premier temps, lorsque le thread principal passe pour la première fois dans threadCreate
+\newline
+Dans un premier temps, lorsque le thread principal passe pour la première fois dans \textcolor{red2}{do\_ThreadCreate}
 nous regardons si la bitmap a été instanciée. Si ce n'est pas le cas, nous l'instancions
 et marquons le thread principal à la première place.
 Après cela, chaque thread instancié va prendre le premier slot libre disponible dans
-la bitmap et mémoriser le numéro de ce slot. Puis il appelle AllocateUserStack avec ce
+la bitmap et mémoriser le numéro de ce slot. Puis il appelle \textcolor{red2}{allocateUserStack} avec ce
 numéro pour récupérer l'espace d'adressage de la pile.
-Il libère ensuite ce numéro dans ThreadExit.
+Il libère ensuite ce numéro dans \textcolor{blue2}{ThreadExit}.
 
 \subsubsection{Protection des threads}
 
@@ -116,22 +120,23 @@ Il libère ensuite ce numéro dans ThreadExit.
 pas la main sur l'ordonnanceur et nous ne pouvons pas prédire le moment où les threads
 vont essayer de se lancer. Il faut donc mettre en attente les threads qui voudraient
 s'allouer une pile avant que des places soit libérée. Au début nous avions décidé
-d'appeler thread->yield() qui remet le thread dans la liste d'attente de l'ordonnanceur.
+d'appeler \textcolor{red2}{Thread->yield} qui remet le thread dans la liste d'attente de l'ordonnanceur.
+\newline
 Mais nous avons appris que cette technique impliquait de réveiller régulièrement les
 threads en attente pour rien, ce qui gâchait du temps d'exécution.
 Nous avons donc créé un gros sémaphore qui laisse passer 3 threads (le nombre maximum de threads
-simultanés -1 pour le main) et dont l'entrée se situe au début de startUserThread, et la sortie dans do\_threadExit.
+simultanés -1 pour le main) et dont l'entrée se situe au début de \textcolor{red2}{StartUserThread}, et la sortie dans \textcolor{red2}{do\_ThreadExit}.
 
-\subsubsection{Terminaison automatique}
+\subsection{Terminaison automatique}
 Un autre gros souci nous est arrivé lorsque nous avons voulu implémenter la terminaison
-automatique des threads. Le thread principal finit par défaut par l'appel système Exit
+automatique des threads. Le thread principal finit par défaut par l'appel système \textcolor{blue2}{Exit}
 qui interrompt la machine.
 Nous avons envisagé deux solutions :
 La première consistait à utiliser une variable pour compter le nombre de threads utilisateur actifs
-et d'appeler thread->yield() tant que celle-ci n'est pas à 0 pour faire attendre le thread principal
-au niveau de l'appel système Exit. Nous avons décidé d'écarter cette solution, car yield()
+et d'appeler \textcolor{red2}{Thread->yield} tant que celle-ci n'est pas à 0 pour faire attendre le thread principal
+au niveau de l'appel système \textcolor{blue2}{Exit}. Nous avons décidé d'écarter cette solution, car yield()
 consomme du temps (même si ce n'est que sur le thread principal)
-La deuxième était d'appeler ThreadExit dans Exit et d'utiliser la bitmap pour appeler interrupt-Halt()
+La deuxième était d'appeler \textcolor{blue2}{ThreadExit} dans \textcolor{blue2}{Exit} et d'utiliser la bitmap pour appeler interrupt-Halt()
 lorsque celle-ci est vide.
 
 
@@ -144,23 +149,22 @@ implémentation (dans la mesure ou nos tests, fonctionnent). D'autant qu'il s'ag
 de savoir si nos choix d'implémentation sont les bons pour la suite du projet (la gestion
 de plusieurs processus) et que cela reste très difficile à certifier.
 \newline
-\newline
 Dans l'ensemble nous dirions que notre implémentation se veut simple et fonctionnelle.
 Nous pensons être allés à l'essentiel sans nous compliquer la vie et avoir réussi à faire
 un code qui fonctionne en collant au plus près des conseils du tp.
 Nous n'avons pas repéré de bug, les tests effectués terminent tous convenablement. Nous gérons plusieurs
 cas de figure notamment ceux où le thread principal appelle un thread qui appelle un thread.
-\newline
-\newline
+\newpage
 Nous avons néanmoins une petite fuite mémoire que nous n'arrivons pas a
 supprimer (un block possiblement perdu d'âpres valgrind).
 Cependant notre inquiétude majeure est de savoir si nous avons fait les bons choix d'implémentation
 pour la suite du TP. En effet nous avons énormément centralisé le fonctionnement des
-threads et de tout ce qui les entoure dans les fonctions do\_threadExit
-do\_threadCreate et StartUserThread du fichier userthread.cc.
+threads et de tout ce qui les entoure dans les fonctions \textcolor{red2}{do\_ThreadExit}
+\textcolor{red2}{do\_ThreadCreate} et \textcolor{red2}{StartUserThread} du fichier \textcolor{vert2}{userthread.cc}.
 De l'instanciation et l'utilisation des locks et des sémaphores à la bitmap en passant par
 l'interruption même de la machine lorsqu'il ne reste plus aucun thread à exécuter. Tout
-se gère dans userthread.cc.
+se gère dans \textcolor{vert2}{userthread.cc}.
+\newline
 Nous relativisons malgré tout la gravité d'une erreur à ce niveau-là, car nous pensons que si
 des modifications doivent être faites plus tard il s'agira plus de déplacer l'implémentation existante que de
 la modifier, ce qui ne représente pas la même quantité de travail.
@@ -169,15 +173,15 @@ la modifier, ce qui ne représente pas la même quantité de travail.
 
 Pour vérifier le fonctionnement de notre implémentation, nous avons écrit 5 programmes de test.
 
-Le premier, thread.c, nous a servi à tester notre tout premier thread utilisateur. Il se contente de vérifier que le thread se lance, et exécute la fonction. Nous avons testé plusieurs fonctions qui faisaient des appels système différents.
-
-Le deuxième test, bothExit.c nous a permis de vérifier que le thread principal et le thread utilisateur puissent tous les deux appeler ThreadExit sans faire planter la console.
-
-Nous avons implémenté un troisième test mutli-thread-test qui crée 30 threads qui exécutent la même fonction. Là encore, nous avons testé avec des fonctions faisant des appels système différents.
-
-Notre quatrième test, autoExit.c, nous a permis de vérifier que l'appel à ThreadExit se faisait bien automatiquement. Le test lance donc plusieurs threads sans appeler directement ThreadExit.
-
-Dans le cinquième et dernier test threadCascade.c, nous créons un thread utilisateur qui lui-même crée un thread utilisateur.
+Le premier, \textcolor{vert2}{thread.c}, nous a servi à tester notre tout premier thread utilisateur. Il se contente de vérifier que le thread se lance, et exécute la fonction. Nous avons testé plusieurs fonctions qui faisaient des appels système différents.
+\newline
+Le deuxième test, \textcolor{vert2}{bothExit.c} nous a permis de vérifier que le thread principal et le thread utilisateur puissent tous les deux appeler \textcolor{blue2}{ThreadExit} sans faire planter la console.
+\newline
+Nous avons implémenté un troisième test \textcolor{vert2}{mutli-thread-test.c} qui crée 30 threads qui exécutent la même fonction. Là encore, nous avons testé avec des fonctions faisant des appels système différents.
+\newline
+Notre quatrième test, \textcolor{vert2}{autoExit.c}, nous a permis de vérifier que l'appel à \textcolor{blue2}{ThreadExit} se faisait bien automatiquement. Le test lance donc plusieurs threads sans appeler directement \textcolor{blue2}{ThreadExit}.
+\newline
+Dans le cinquième et dernier test \textcolor{vert2}{threadCascade.c}, nous créons un thread utilisateur qui lui-même crée un thread utilisateur.
 
 
 
