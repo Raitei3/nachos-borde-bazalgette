@@ -32,6 +32,9 @@
 int copyStringFromMachine(int from, char *to, unsigned size);
 int copyStringToMachine(int from, char *to, unsigned size);
 
+static int nbThreadCreated=0;
+static int nbThreadDeleted=0;
+
 #endif //CHANGED
 
 //----------------------------------------------------------------------
@@ -96,9 +99,13 @@ ExceptionHandler (ExceptionType which)
         case SC_Exit:
         {
           DEBUG ('s', "Shutdown, initiated auto\n");
-          //int ret = machine -> ReadRegister(4); //on récupère la valeur de retour de main
-          //printf("Exit(%d)\n",ret);
-          do_ThreadExit();                   //et on utilise simplement Halt()
+          int ret = machine -> ReadRegister(4); //on récupère la valeur de retour de main
+          while (nbThreadCreated!=nbThreadDeleted) {
+            currentThread->Yield();
+          }
+          quit();
+          printf("Exit(%d)\n",ret);
+          interrupt->Halt();
           break;
         }
 
@@ -159,9 +166,6 @@ ExceptionHandler (ExceptionType which)
       break;
     }
 
-
-
-
     case SC_PutInt:
     {
       DEBUG ('s', "call GetInt.\n");
@@ -188,6 +192,7 @@ ExceptionHandler (ExceptionType which)
     {
       DEBUG ('s', "call ThreadCreate.\n");
       int thread;
+      nbThreadCreated++;
       thread = do_ThreadCreate(machine -> ReadRegister(4),machine -> ReadRegister(5),machine->ReadRegister(6));
       machine -> WriteRegister(2,thread);
       break;
@@ -196,6 +201,10 @@ ExceptionHandler (ExceptionType which)
     case SC_ThreadExit:
     {
       DEBUG ('s', "call ThreadExit.\n");
+      if(strcmp(currentThread->getName( ),"main")==0){
+        break;
+      }
+      nbThreadDeleted++;
       do_ThreadExit();
       break;
     }

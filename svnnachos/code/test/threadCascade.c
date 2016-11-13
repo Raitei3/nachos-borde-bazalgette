@@ -6,7 +6,6 @@ void func2(void)
   char c = 'a';
   PutChar(c);
   PutChar('\n');
-  //ThreadExit();
   return 0;
 }
 
@@ -22,6 +21,5 @@ int main()
   ThreadCreate(v, 0);
   PutChar(c2);
   PutChar('\n');
-  //ThreadExit();
   return 0;
 }
