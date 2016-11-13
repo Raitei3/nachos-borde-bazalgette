@@ -28,7 +28,8 @@
 L'objectif de ce TP était de permettre l'exécution de threads simultanés.
 Nous avons fini toutes les parties excepté la dernière concernant la mise en place de sémaphores pour l'utilisateur, car nous avons manqué de temps.
 Nous avons également implémenté les appels système PutInt et GetInt,
-que nous n'avions pas compris lors du premier TP.
+que nous n'avions pas compris lors du premier TP. Ainsi que corrigé toutes les erreurs qui
+nous ont été signaler lors de la remise du rapport.
 Tout ce que nous avons implémenté fonctionne, nous pouvons donc lancer autant de threads que nous voulons qui se termineront automatiquement.
 D'autre part, bien que nous nous attendions à devoir revenir sur la partie précédente pour corriger des bugs innatendus, nous n'avons eu aucune mauvaise surprise et n'avons donc pas eu à modifier le code du TP1.
 
@@ -58,7 +59,7 @@ Le nombre de threads que l'utilisateur peut lancer est donc limité
 par la taille de la pile
 
 Pour pallier cette limite , il nous était demandé dans la partie suivante de permettre la réutilisation de l'espace pile libéré.
-Pour cela, nous avons utilisé la classe BitMap, qui gère la disponibilité des 4 espaces de la pile. Ainsi, quand un thread est créé, on le place dans la file d'attente de l'ordonnanceur, et un espace ne lui sera alloué seulement quand un des espaces sera libre.
+Pour cela, nous avons utilisé la classe BitMap, qui gère la disponibilité des 4 espaces de la pile.
 Grâce à cette technique, l'utilisateur peut désormais lancer autant
 de threads qu'il le souhaite.
 
