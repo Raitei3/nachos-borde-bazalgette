@@ -1,5 +1,8 @@
 #include "syscall.h"
 
+// test PutChar sur 2 thread
+// doit retourner a et b 
+
 char c = 'a';
 
 void func() {
