@@ -69,12 +69,17 @@ On place ensuite cette adresse dans le registre 31, qui correspond à l'adresse 
 
 \section {Tests}
 
-Pour vérifier le fonctionnement de notre implémenatation, nous avons écrit 4 programmes de test.
-Le premier, "insérer nom" nous a servi à tester notre tout premier thread utilisateur. Il se contente seulement de vérifier que le thread se lance, et exécute la fonction. Nous avons testé plusieurs fonctions qui faisaient des appels système différents.
-Le deuxième test nous a permis de vérifier que le thread principal et le thread utilisateur puissent tous les deux appeler ThreadExit sans faire planter la console.
-Nous avons fait un troisième test qui créé 30 threads qui exécutent la même fonction. Là encore, nous avons testé avec des fonctions faisant des appels système différents.
-Notre quatrième et dernier test nous a permi de vérifier que l'appel à ThreadExit se faisait bien automatiquement. Le test lance donc plusieurs threads sans appeler dirrectement ThreadExit.
+Pour vérifier le fonctionnement de notre implémenatation, nous avons écrit 5 programmes de test.
 
+Le premier, thread.c, nous a servi à tester notre tout premier thread utilisateur. Il se contente seulement de vérifier que le thread se lance, et exécute la fonction. Nous avons testé plusieurs fonctions qui faisaient des appels système différents.
+
+Le deuxième test, bothExit.c nous a permis de vérifier que le thread principal et le thread utilisateur puissent tous les deux appeler ThreadExit sans faire planter la console.
+
+Nous avons implémenté un troisième test mutli-thread-test qui créé 30 threads qui exécutent la même fonction. Là encore, nous avons testé avec des fonctions faisant des appels système différents.
+
+Notre quatrième test, autoExit.c, nous a permi de vérifier que l'appel à ThreadExit se faisait bien automatiquement. Le test lance donc plusieurs threads sans appeler dirrectement ThreadExit.
+
+Dans le cinquième et dernier test threadCascade.c, nous créons un thread utilisateur qui lui même crée un thread utilisateur.
 
 
 
