@@ -32,8 +32,8 @@
 int copyStringFromMachine(int from, char *to, unsigned size);
 int copyStringToMachine(int from, char *to, unsigned size);
 
-static int nbThreadCreated=0;
-static int nbThreadDeleted=0;
+static int nbThreadCreated=0; //variable qui nout permetront de savoir
+static int nbThreadDeleted=0;// combien de thread ont été créer et combien ont été detruit.
 
 #endif //CHANGED
 
@@ -100,10 +100,10 @@ ExceptionHandler (ExceptionType which)
         {
           DEBUG ('s', "Shutdown, initiated auto\n");
           int ret = machine -> ReadRegister(4); //on récupère la valeur de retour de main
-          while (nbThreadCreated!=nbThreadDeleted) {
+          while (nbThreadCreated!=nbThreadDeleted) {//on vérifie que tout les thread sont détruit
             currentThread->Yield();
           }
-          quit();
+          quit();//fonction qui va desinstancier toute nos structure
           printf("Exit(%d)\n",ret);
           interrupt->Halt();
           break;
@@ -192,9 +192,11 @@ ExceptionHandler (ExceptionType which)
     {
       DEBUG ('s', "call ThreadCreate.\n");
       int thread;
-      nbThreadCreated++;
-      thread = do_ThreadCreate(machine -> ReadRegister(4),machine -> ReadRegister(5),machine->ReadRegister(6));
-      machine -> WriteRegister(2,thread);
+      nbThreadCreated++;// on increment le compteur de thread créer.
+      int addrThreadExit = machine-> ReadRegister(6);//on recupere l'addresse de ThreadExit
+
+      thread = do_ThreadCreate(machine -> ReadRegister(4),machine -> ReadRegister(5),addrThreadExit,nbThreadCreated);
+      machine -> WriteRegister(2,thread);// on écrit la valeur de retour de ThreadCreate
       break;
     }
 
