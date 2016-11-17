@@ -22,6 +22,11 @@
 #include "syscall.h"
 #include "new"
 
+#ifdef CHANGED
+static void ReadAtVirtual(OpenFile * executable, int virtualaddr, int numBytes, int position,
+			  TranslationEntry * pageTable, unsigned numPages);
+#endif //CHANGED
+
 //----------------------------------------------------------------------
 // SwapHeader
 //      Do little endian to big endian conversion on the bytes in the
@@ -101,6 +106,8 @@ AddrSpace::AddrSpace (OpenFile * executable)
       }
 
 // then, copy in the code and data segments into memory
+
+    /******************************* Code d'avant *******************************
     if (noffH.code.size > 0)
       {
 	  DEBUG ('a', "Initializing code segment, at 0x%x, size 0x%x\n",
@@ -122,6 +129,29 @@ AddrSpace::AddrSpace (OpenFile * executable)
 	   size - UserStacksAreaSize, UserStacksAreaSize);
 
     pageTable[0].valid = FALSE;			// Catch NULL dereference
+
+    ****************************************************************************/
+    
+    if (noffH.code.size > 0)
+      {
+	DEBUG ('a', "Initializing code segment, at 0x%x, size 0x%x\n",
+	       noffH.code.virtualAddr, noffH.code.size);
+	ReadAtVirtual(executable, noffH.code.virtualAddr, noffH.code.size,
+		      noffH.code.inFileAddr, pageTable, numPages);
+      }
+    if (noffH.initData.size > 0)
+      {
+	DEBUG ('a', "Initializing data segment, at 0x%x, size 0x%x\n",
+	       noffH.initData.virtualAddr, noffH.initData.size);
+	ReadAtVirtual(executable, noffH.initData.virtualAddr, noffH.initData.size,
+		      noffH.initData.inFileAddr, pageTable, numPages);
+      }
+
+    DEBUG ('a', "Area for stacks at 0x%x, size 0x%x\n",
+	   size - UserStacksAreaSize, UserStacksAreaSize);
+
+    pageTable[0].valid = FALSE;			// Catch NULL dereference
+    
 }
 
 //----------------------------------------------------------------------
@@ -208,5 +238,26 @@ if (x>0) {
 else
     return numPages * PageSize;
 }
+
+static void ReadAtVirtual(OpenFile * executable, int virtualaddr, int numBytes, int position,
+			  TranslationEntry * pageTable, unsigned numPages) {
+
+  TranslationEntry * pageTableTmp = machine->pageTable;
+  unsigned numPagesTmp = machine->pageTableSize;
+  
+  machine->pageTable = pageTable;
+  machine->pageTableSize = numPages;
+  
+  char buf[numBytes];
+  executable -> ReadAt(buf, numBytes, position);
+  for (int i=0; i<numBytes; i++) {
+    machine->WriteMem(virtualaddr + i, 1, buf[i]);
+  }
+  
+  machine->pageTable = pageTableTmp;
+  machine->pageTableSize = numPagesTmp;
+   
+}
+
 
 #endif //CHANGED

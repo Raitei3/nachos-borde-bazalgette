@@ -30,3 +30,26 @@ quest:
 -rapport
 -getint PutInt
 -vérifier les valeur de retour des appels systeme.
+
+
+
+partie III
+
+plusieurs espaces d'adressage qui se partagent l'espace disponible
+numéros de page traduits en numeros de pages physiques (main memory)
+la table des pages fait le lien entre virt mem et phys mem.
+
+dans la partie 1, il faut faire un décalage.
+pareil que our les threads, bitmap sur les pages physiques.
+souvent dans les systemes la memoire physique est en vrac et des bouts de processus
+peuvent etre séparés mais les processus ne le savent pas.
+
+addrspace charge dans la mem physique 1 du code et un bout de données, et dans le slot 2
+la fin des données + pile. Donc ca marche pas.
+
+readatvirtual : se faire un tampon, charger grace a readat, ecrire les octets un par un
+dans la memoire virtuelle avec writemem. Lent mais ca marche.
+
+action I.2 :
+on le voit à machine->memory qui est l'espace mémoire physique.
+On passe a readAt un pointeur vers cet espace.
