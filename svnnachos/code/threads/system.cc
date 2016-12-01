@@ -32,9 +32,10 @@ SynchDisk *synchDisk;
 #endif
 
 #ifdef USER_PROGRAM		// requires either FILESYS or FILESYS_STUB
-Machine *machine;               // user program memory and registers
+Machine *machine;            // user program memory and registers
 #ifdef CHANGED
 SynchConsole *synchconsole;
+PageProvider * pageProvider;
 #endif
 #endif
 
@@ -178,7 +179,9 @@ Initialize (int argc, char **argv)
 
     interrupt->Enable ();
     CallOnUserAbort (Cleanup);	// if user hits ctl-C
-
+#ifdef CHANGED
+  pageProvider = new PageProvider();
+#endif
 #ifdef USER_PROGRAM
     machine = new Machine (debugUserProg);	// this must come first
 #endif

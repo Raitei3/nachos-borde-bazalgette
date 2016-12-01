@@ -96,7 +96,7 @@ AddrSpace::AddrSpace (OpenFile * executable)
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++)
       {
-	  pageTable[i].physicalPage = i;	// for now, phys page # = virtual page #
+	  pageTable[i].physicalPage = pageProvider->GetEmptyPage();	// for now, phys page # = virtual page #
 	  pageTable[i].valid = TRUE;
 	  pageTable[i].use = FALSE;
 	  pageTable[i].dirty = FALSE;
@@ -131,7 +131,7 @@ AddrSpace::AddrSpace (OpenFile * executable)
     pageTable[0].valid = FALSE;			// Catch NULL dereference
 
     ****************************************************************************/
-    
+
     if (noffH.code.size > 0)
       {
 	DEBUG ('a', "Initializing code segment, at 0x%x, size 0x%x\n",
@@ -151,7 +151,7 @@ AddrSpace::AddrSpace (OpenFile * executable)
 	   size - UserStacksAreaSize, UserStacksAreaSize);
 
     pageTable[0].valid = FALSE;			// Catch NULL dereference
-    
+
 }
 
 //----------------------------------------------------------------------
@@ -244,19 +244,19 @@ static void ReadAtVirtual(OpenFile * executable, int virtualaddr, int numBytes, 
 
   TranslationEntry * pageTableTmp = machine->pageTable;
   unsigned numPagesTmp = machine->pageTableSize;
-  
+
   machine->pageTable = pageTable;
   machine->pageTableSize = numPages;
-  
+
   char buf[numBytes];
   executable -> ReadAt(buf, numBytes, position);
   for (int i=0; i<numBytes; i++) {
     machine->WriteMem(virtualaddr + i, 1, buf[i]);
   }
-  
+
   machine->pageTable = pageTableTmp;
   machine->pageTableSize = numPagesTmp;
-   
+
 }
 
 
