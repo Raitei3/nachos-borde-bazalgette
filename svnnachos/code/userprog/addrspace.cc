@@ -67,6 +67,8 @@ SwapHeader (NoffHeader * noffH)
 
 AddrSpace::AddrSpace (OpenFile * executable)
 {
+    printf("tamere\n");
+
     NoffHeader noffH;
     unsigned int i, size;
 
@@ -94,6 +96,7 @@ AddrSpace::AddrSpace (OpenFile * executable)
 	   numPages, size);
 // first, set up the translation
     pageTable = new TranslationEntry[numPages];
+
     for (i = 0; i < numPages; i++)
       {
 	  pageTable[i].physicalPage = pageProvider->GetEmptyPage();	// for now, phys page # = virtual page #

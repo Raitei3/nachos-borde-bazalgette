@@ -23,6 +23,7 @@ Statistics *stats;		// performance metrics
 Timer *timer;			// the hardware timer device,
 					// for invoking context switches
 
+
 #ifdef FILESYS_NEEDED
 FileSystem *fileSystem;
 #endif
@@ -179,11 +180,12 @@ Initialize (int argc, char **argv)
 
     interrupt->Enable ();
     CallOnUserAbort (Cleanup);	// if user hits ctl-C
-#ifdef CHANGED
+/*#ifdef CHANGED
   pageProvider = new PageProvider();
-#endif
+#endif*/
 #ifdef USER_PROGRAM
     machine = new Machine (debugUserProg);	// this must come first
+
 #endif
 
 #ifdef FILESYS

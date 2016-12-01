@@ -17,6 +17,7 @@
 #include "filesys.h"
 #include "translate.h"
 
+
 #define UserStacksAreaSize		1024	// increase this as necessary!
 
 class AddrSpace:dontcopythis
