@@ -93,6 +93,7 @@ Initialize (int argc, char **argv)
 
 #ifdef USER_PROGRAM
     bool debugUserProg = FALSE;	// single step user program
+    pageProvider = new PageProvider();
 #endif
 #ifdef FILESYS_NEEDED
     bool format = FALSE;	// format disk
