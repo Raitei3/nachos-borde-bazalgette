@@ -45,6 +45,9 @@ class AddrSpace:dontcopythis
     // for now!
     unsigned int numPages;	// Number of pages in the virtual
     // address space
+#ifdef CHANGED
+    int * tp;
+#endif
 };
 
 

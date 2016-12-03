@@ -67,7 +67,6 @@ SwapHeader (NoffHeader * noffH)
 
 AddrSpace::AddrSpace (OpenFile * executable)
 {
-    printf("tamere\n");
 
     NoffHeader noffH;
     unsigned int i, size;
@@ -96,10 +95,16 @@ AddrSpace::AddrSpace (OpenFile * executable)
 	   numPages, size);
 // first, set up the translation
     pageTable = new TranslationEntry[numPages];
-
+    printf("%d\n",numPages );
+    int tab[numPages];
+    tp = tab;
+    //tp = malloc(sizeof(int)*numPages);
+    ASSERT(numPages<= pageProvider->NumAvailPages());
     for (i = 0; i < numPages; i++)
       {
-	  pageTable[i].physicalPage = pageProvider->GetEmptyPage();	// for now, phys page # = virtual page #
+          int x =pageProvider->GetEmptyPage();
+	  pageTable[i].physicalPage = x;	// for now, phys page # = virtual page #
+      tp[i]=x;
 	  pageTable[i].valid = TRUE;
 	  pageTable[i].use = FALSE;
 	  pageTable[i].dirty = FALSE;
@@ -166,6 +171,9 @@ AddrSpace::~AddrSpace ()
 {
   // LB: Missing [] for delete
   // delete pageTable;
+  /*for(unsigned int i = 0; i<numPages;i++){
+      pageProvider->RealeasePage(tp[i]);
+  }*/
   delete [] pageTable;
   // End of modification
 }

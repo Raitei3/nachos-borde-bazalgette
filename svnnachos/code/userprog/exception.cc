@@ -212,7 +212,45 @@ ExceptionHandler (ExceptionType which)
     }
 
 
+
+    case SC_ForkExec:
+    {
+      DEBUG ('s', "call ForkExec.\n");
+      int from = machine -> ReadRegister(4);
+      char to[MAX_STRING_SIZE];
+      copyStringFromMachine(from, to , MAX_STRING_SIZE);
+      printf("%s\n",to );
+      const char *to2 = to;
+      OpenFile *executable = fileSystem->Open (to2);
+      AddrSpace *space;
+      Thread *thread;
+
+      if (executable == NULL)
+        {
+  	  printf ("Unable to open file %s\n", to);
+  	  return;
+        }
+      space = new AddrSpace (executable);
+      thread = new Thread("thread noyau");
+      thread -> setStatus(RUNNING);
+
+      delete executable;
+      space->InitRegisters();
+      space->RestoreState();
+      thread->space = space;
+      //Machine machine2 = new Machine(debugUserProg);
+
+
+
+      machine->Run();
+      break;
+    }
+
   #endif //CHANGED
+
+
+
+
 
   default:
   {

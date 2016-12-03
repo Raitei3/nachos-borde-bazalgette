@@ -8,6 +8,9 @@ void print(char c, int n) {
   PutChar('\n');
 }
 int main() {
-  print('a',4);
+  PutString("début de PutChar\n");
+  //print('a',4);
+  PutChar('a');
+  while(1);
   Halt();
 }

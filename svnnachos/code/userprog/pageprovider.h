@@ -13,7 +13,7 @@ class PageProvider:dontcopythis{
     ~PageProvider();
     int GetEmptyPage();
     void RealeasePage(int i);
-    int NumAvailPages();
+  unsigned int NumAvailPages();
 
   private:
 

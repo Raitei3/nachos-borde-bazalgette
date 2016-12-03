@@ -12,8 +12,10 @@ PageProvider::PageProvider(){
 
 int PageProvider::GetEmptyPage(){
   int b = bitmap->Find();
-  for (int i = 0 ; i<PageSize ; i++)
-  machine->WriteMem(b,1,0);
+  /*int * p = (int*) b+1;
+  void * p2 = (void*)p;
+  printf("%p\n",p2 );
+  memset(p2,0,PageSize);*/
   return b;
 }
 
@@ -23,7 +25,7 @@ void PageProvider::RealeasePage(int i) {
   }
 }
 
-int PageProvider::NumAvailPages() {
+unsigned int PageProvider::NumAvailPages() {
   return bitmap->NumClear();
 }
 
