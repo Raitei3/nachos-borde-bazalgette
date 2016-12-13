@@ -2,6 +2,10 @@
 //#include "syscall.h"
 #include "system.h"
 #include "pageprovider.h"
+#include "syscall.h"
+#include "machine.h"
+
+int x = 1;
 
 BitMap * bitmap;
 
@@ -12,10 +16,8 @@ PageProvider::PageProvider(){
 
 int PageProvider::GetEmptyPage(){
   int b = bitmap->Find();
-  /*int * p = (int*) b+1;
-  void * p2 = (void*)p;
-  printf("%p\n",p2 );
-  memset(p2,0,PageSize);*/
+  memset(machine->mainMemory + b*PageSize,0,PageSize);
+  //printf("%d\n",b );
   return b;
 }
 

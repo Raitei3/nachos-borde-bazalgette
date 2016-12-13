@@ -52,6 +52,7 @@ void StartUserThread(void * init) {
   execThreadSector->P();  //Le Semaphore principal qui empèche + de 4 threads d'être actifs en meme temps
 
   int threadSlot = bitmap->Find();
+  printf("%d\n",threadSlot);
   currentThread -> setIdMap(threadSlot);
   bitmap->Mark(threadSlot);
   machine->WriteRegister (StackReg, currentThread->space->AllocateUserStack(threadSlot));

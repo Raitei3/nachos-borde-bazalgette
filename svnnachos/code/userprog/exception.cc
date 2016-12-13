@@ -29,11 +29,13 @@
 
 #include "userthread.h"
 
+void fork(void* arg);
 int copyStringFromMachine(int from, char *to, unsigned size);
 int copyStringToMachine(int from, char *to, unsigned size);
 
 static int nbThreadCreated=0; //variable qui nout permetront de savoir
 static int nbThreadDeleted=0;// combien de thread ont été créer et combien ont été detruit.
+static int nbFork = 0;
 
 #endif //CHANGED
 
@@ -98,14 +100,25 @@ ExceptionHandler (ExceptionType which)
 
         case SC_Exit:
         {
+          //printf("je suis la");
           DEBUG ('s', "Shutdown, initiated auto\n");
           int ret = machine -> ReadRegister(4); //on récupère la valeur de retour de main
+
           while (nbThreadCreated!=nbThreadDeleted) {//on vérifie que tout les thread sont détruit
+            //printf("blabla");
             currentThread->Yield();
           }
-          quit();//fonction qui va desinstancier toute nos structure
           printf("Exit(%d)\n",ret);
-          interrupt->Halt();
+          //printf("%d\n",nbFork);
+          if(nbFork < 1){
+            quit();//fonction qui va desinstancier toute nos structure
+            interrupt->Halt();
+          }
+          else{
+            delete(currentThread->space);
+            nbFork--;
+            currentThread->Finish();
+          }
           break;
         }
 
@@ -219,10 +232,8 @@ ExceptionHandler (ExceptionType which)
       int from = machine -> ReadRegister(4);
       char to[MAX_STRING_SIZE];
       copyStringFromMachine(from, to , MAX_STRING_SIZE);
-      printf("%s\n",to );
       const char *to2 = to;
       OpenFile *executable = fileSystem->Open (to2);
-      AddrSpace *space;
       Thread *thread;
 
       if (executable == NULL)
@@ -230,19 +241,10 @@ ExceptionHandler (ExceptionType which)
   	  printf ("Unable to open file %s\n", to);
   	  return;
         }
-      space = new AddrSpace (executable);
+
       thread = new Thread("thread noyau");
-      thread -> setStatus(RUNNING);
-
-      delete executable;
-      space->InitRegisters();
-      space->RestoreState();
-      thread->space = space;
-      //Machine machine2 = new Machine(debugUserProg);
-
-
-
-      machine->Run();
+      thread->Start(fork,executable);
+      nbFork++;
       break;
     }
 
@@ -264,6 +266,9 @@ UpdatePC ();
 break;
 }
 
+
+
+
 case PageFaultException:
 if (!type) {
   printf("NULL dereference at PC %x!\n", machine->registers[PCReg]);
@@ -280,6 +285,17 @@ ASSERT (FALSE);
 }
 
 #ifdef CHANGED
+
+void fork(void* arg){
+      AddrSpace *space;
+      space = new AddrSpace ((OpenFile*)arg);
+      currentThread->space = space;
+      space->InitRegisters();
+      space->RestoreState();
+      delete (OpenFile*)arg;
+      printf("tamere%d\n",nbFork );
+      machine->Run();
+}
 
 int copyStringFromMachine(int from, char *to, unsigned size){
 
