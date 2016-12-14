@@ -29,6 +29,7 @@
 
 #include "userthread.h"
 
+static Lock *spaceCreate = new Lock("spaceCreate");
 void fork(void* arg);
 int copyStringFromMachine(int from, char *to, unsigned size);
 int copyStringToMachine(int from, char *to, unsigned size);
@@ -288,12 +289,13 @@ ASSERT (FALSE);
 
 void fork(void* arg){
       AddrSpace *space;
+      spaceCreate->Acquire();
       space = new AddrSpace ((OpenFile*)arg);
+      spaceCreate->Release();
       currentThread->space = space;
       space->InitRegisters();
       space->RestoreState();
       delete (OpenFile*)arg;
-      printf("tamere%d\n",nbFork );
       machine->Run();
 }
 

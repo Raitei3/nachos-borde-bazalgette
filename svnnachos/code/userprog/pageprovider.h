@@ -5,6 +5,7 @@
 #include "bitmap.h"
 //#include "syscall.h"
 #include "system.h"
+#include "synch.h"
 
 class PageProvider:dontcopythis{
   public:

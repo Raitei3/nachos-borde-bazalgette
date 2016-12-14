@@ -1,7 +1,8 @@
 #include "syscall.h"
 main()
 {
-ForkExec("test/userpages0");
-ForkExec("test/userpages1");
-return 1;
+  int i =0;
+for (i; i<20;i++)
+ForkExec("test/multi-thread-test");
+return 0;
 }

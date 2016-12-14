@@ -4,10 +4,9 @@
 #include "syscall.h"
 
 static Lock *threadExit = new Lock("threadExit");
-static Semaphore *execThreadSector = new Semaphore("execThreadSector",3);
+//static Semaphore *execThreadSector = new Semaphore("execThreadSector",3);
 static Lock *threadCreate = new Lock("threadCreate");
 
-static BitMap * bitmap = NULL;
 static char s[255];
 
 //------------------------------------------------------------------
@@ -16,8 +15,9 @@ int do_ThreadCreate(int f, int arg,int addr,int nbThreadCreated) {
   threadCreate -> Acquire(); //on protège avec un lock.
   //peut servir si on créé des threads en cascade.
 
-  if (bitmap == NULL){  // on regarde si la bitmap est instanciée et si ce
-    initFirstThread();  // n'est pas le cas on sait qu'on doit tout initialiser.
+  if (currentThread->space->threadBitmap == NULL){  // on regarde si la bitmap est instanciée et si ce
+    currentThread->space->initFirstThread();  // n'est pas le cas on sait qu'on doit tout initialiser.
+    currentThread->space->execThreadSector = new Semaphore("execThreadSector",3);
   }
   sprintf(s,"UserTread-%d",nbThreadCreated); //on genère le nom du thread en utilisant nbThreadCreated
 
@@ -49,12 +49,11 @@ void StartUserThread(void * init) {
                                                    //dans le registre de retour.
   free (init);
 
-  execThreadSector->P();  //Le Semaphore principal qui empèche + de 4 threads d'être actifs en meme temps
+  currentThread->space->execThreadSector->P();  //Le Semaphore principal qui empèche + de 4 threads d'être actifs en meme temps
 
-  int threadSlot = bitmap->Find();
-  printf("%d\n",threadSlot);
+  int threadSlot = currentThread->space->threadBitmap->Find();
   currentThread -> setIdMap(threadSlot);
-  bitmap->Mark(threadSlot);
+  currentThread->space->threadBitmap->Mark(threadSlot);
   machine->WriteRegister (StackReg, currentThread->space->AllocateUserStack(threadSlot));
   DEBUG ('a', "Initializing thread stack register to 0x%x\n", machine->ReadRegister(StackReg));
   machine->Run();
@@ -64,25 +63,17 @@ void StartUserThread(void * init) {
 void do_ThreadExit(){
 
   threadExit->Acquire();  //on protege la bitmap d'éventuel accé concurrent
-  bitmap->Clear(currentThread->getIdMap());
+  currentThread->space->threadBitmap->Clear(currentThread->getIdMap());
   threadExit->Release();
 
-  execThreadSector->V();  //on rend un jeton : la place est desormais libre
+  currentThread->space->execThreadSector->V();  //on rend un jeton : la place est desormais libre
   currentThread->Finish();
 }
 
 
-//initialise le main et la bitmap.
-void initFirstThread(){
-  bitmap = new BitMap(4);
-  bitmap->Mark(0);
-  currentThread->setIdMap(0);
-}
-
 
 // Libère les objets créés
 void quit(){
-  delete bitmap;
   delete threadExit;
   delete threadCreate;
   printf("\n");

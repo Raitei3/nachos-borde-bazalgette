@@ -16,6 +16,11 @@
 #include "copyright.h"
 #include "filesys.h"
 #include "translate.h"
+#include "bitmap.h"
+
+#ifdef CHANGED
+class Semaphore;
+#endif
 
 
 #define UserStacksAreaSize		1024	// increase this as necessary!
@@ -34,7 +39,9 @@ class AddrSpace:dontcopythis
 #ifdef CHANGED
 
   int AllocateUserStack(int x); // return new addr stack
-
+  BitMap * threadBitmap;
+  void initFirstThread();
+  Semaphore *execThreadSector;
   #endif
 
     void SaveState ();		// Save/restore address space-specific
@@ -45,9 +52,6 @@ class AddrSpace:dontcopythis
     // address space
   private:
 
-#ifdef CHANGED
-    int * tp;
-#endif
 };
 
 

@@ -21,7 +21,6 @@ typedef struct argInitThread {
 extern int do_ThreadCreate(int f, int arg,int arg2,int nbThreadCreated);
 void StartUserThread(void * init);
 void do_ThreadExit();
-void initFirstThread();
 void quit();
 
 

@@ -95,9 +95,11 @@ AddrSpace::AddrSpace (OpenFile * executable)
 	   numPages, size);
 // first, set up the translation
     pageTable = new TranslationEntry[numPages];
-    //tp = tab;
-    //tp = malloc(sizeof(int)*numPages);
-    ASSERT(numPages<= pageProvider->NumAvailPages());
+#ifdef CHANGED
+
+    threadBitmap = NULL;
+
+    //ASSERT(numPages<= pageProvider->NumAvailPages());
     for (i = 0; i < numPages; i++)
       {
           int x =pageProvider->GetEmptyPage();
@@ -110,32 +112,6 @@ AddrSpace::AddrSpace (OpenFile * executable)
 	  // pages to be read-only
       }
 
-// then, copy in the code and data segments into memory
-
-    /******************************* Code d'avant *******************************
-    if (noffH.code.size > 0)
-      {
-	  DEBUG ('a', "Initializing code segment, at 0x%x, size 0x%x\n",
-		 noffH.code.virtualAddr, noffH.code.size);
-	  executable->ReadAt (&(machine->mainMemory[noffH.code.virtualAddr]),
-			      noffH.code.size, noffH.code.inFileAddr);
-      }
-    if (noffH.initData.size > 0)
-      {
-	  DEBUG ('a', "Initializing data segment, at 0x%x, size 0x%x\n",
-		 noffH.initData.virtualAddr, noffH.initData.size);
-	  executable->ReadAt (&
-			      (machine->mainMemory
-			       [noffH.initData.virtualAddr]),
-			      noffH.initData.size, noffH.initData.inFileAddr);
-      }
-
-    DEBUG ('a', "Area for stacks at 0x%x, size 0x%x\n",
-	   size - UserStacksAreaSize, UserStacksAreaSize);
-
-    pageTable[0].valid = FALSE;			// Catch NULL dereference
-
-    ****************************************************************************/
 
     if (noffH.code.size > 0)
       {
@@ -178,7 +154,7 @@ AddrSpace::~AddrSpace ()
   delete [] pageTable;
   // End of modification
 }
-
+#endif //CHANGED
 //----------------------------------------------------------------------
 // AddrSpace::InitRegisters
 //      Set the initial values for the user-level register set.
@@ -240,7 +216,20 @@ AddrSpace::RestoreState ()
     machine->pageTableSize = numPages;
 }
 
+
+
 #ifdef CHANGED
+
+//initialise le main et la bitmap
+void
+AddrSpace::initFirstThread() {
+    threadBitmap = new BitMap(UserStacksAreaSize/256);
+    threadBitmap->Mark(0);
+    currentThread->setIdMap(0);
+}
+
+
+
 
 int
 AddrSpace::AllocateUserStack(int x) {
@@ -250,6 +239,14 @@ if (x>0) {
 else
     return numPages * PageSize;
 }
+
+
+
+/**
+	*------------------------------------------------------------------------------
+	*/
+
+
 
 static void ReadAtVirtual(OpenFile * executable, int virtualaddr, int numBytes, int position,
 			  TranslationEntry * pageTable, unsigned numPages) {
