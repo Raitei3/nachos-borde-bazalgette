@@ -223,7 +223,7 @@ AddrSpace::RestoreState ()
 //initialise le main et la bitmap
 void
 AddrSpace::initFirstThread() {
-    threadBitmap = new BitMap(UserStacksAreaSize/256);
+    threadBitmap = new BitMap(NBTHREAD);
     threadBitmap->Mark(0);
     currentThread->setIdMap(0);
 }

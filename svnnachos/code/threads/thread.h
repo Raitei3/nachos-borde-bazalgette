@@ -119,6 +119,8 @@ class Thread:dontcopythis
     void setIdMap(int id){
       idMap=id;
     }
+
+    int threadSlot = -1;
 #endif
 
   private:
