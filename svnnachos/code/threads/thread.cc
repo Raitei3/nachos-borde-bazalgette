@@ -78,6 +78,8 @@ Thread::~Thread ()
     DEBUG ('t', "Deleting thread \"%s\"\n", name);
 
     ASSERT (this != currentThread);
+    delete listSem;
+    delete listLock;
     if (stack != NULL) {
 	DeallocBoundedArray ((char *) stack, StackSize * sizeof (unsigned long));
 	VALGRIND_STACK_DEREGISTER (valgrind_id);

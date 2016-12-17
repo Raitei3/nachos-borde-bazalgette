@@ -157,6 +157,10 @@ AddrSpace::~AddrSpace ()
   }
   pageProvider->Release();
   delete [] pageTable;
+  /*for (int i = 0; i < NBTHREAD; i++) {
+      free(threadMap[i]);
+  }
+  free(threadMap);*/
   // End of modification
 }
 #endif //CHANGED

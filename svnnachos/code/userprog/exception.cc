@@ -35,9 +35,6 @@ void fork(void* arg);
 int copyStringFromMachine(int from, char *to, unsigned size);
 int copyStringToMachine(int from, char *to, unsigned size);
 void releaseMutex(Thread* thread);
-//int destThread(Thread * thread);
-
-static Lock * lockFork = new Lock("lockFork");
 
 int nbThreadNoyau = 1;
 int nbProcess = 1;

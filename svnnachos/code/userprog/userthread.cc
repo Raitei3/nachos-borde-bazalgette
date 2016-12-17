@@ -78,8 +78,8 @@ threadExit->Acquire();
   currentThread->space->execThreadSector->V();  //on rend un jeton : la place est desormais libre
 }
 if(currentThread->space->nbThread == 1){
-  delete currentThread->space;
-  //quit();
+  //delete currentThread->space;
+  quit();
   //printf("Exit(%d)\n",ret );
   if (nbProcess == 0) {
     interrupt->Halt();
@@ -96,10 +96,13 @@ if(currentThread->space->nbThread == 1){
 
 // Libère les objets créés
 void quit(){
+  if(currentThread->space->threadBitmap!=NULL){
   delete currentThread->space->execThreadSector;
   delete currentThread->space->threadBitmap;
   delete currentThread->space->threadCreate;
-  delete currentThread->space;
+
+}
+delete currentThread->space;
 
   //delete threadExit;
 //  delete threadCreate;
