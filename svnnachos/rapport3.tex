@@ -1,0 +1,47 @@
+\documentclass[12pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[francais]{babel}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{color}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage{verbatim}
+\usepackage{tocbibind}
+\usepackage{array}
+
+\definecolor{vert2}{rgb}{0.09,0.30,0.12}
+\definecolor{red2}{rgb}{0.43,0.05,0.1}
+\definecolor{blue2}{rgb}{0.1,0.05,0.5}
+
+\begin{document}
+\title{Projet système : Nachos TP 3}
+\author{Martin BAZALGETTE, Antoine BORDE}
+\maketitle
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{Bilan}
+L'objectif de ce troisième et dernier TP était de permettre l'exécution de plusieurs processus simultanés.
+Nous avons terminé toutes les parties (BONUS) les bonus nous ont posé des problèmes etc.
+Les parties que nous avons implémeté fonctionnent, nous pouvons donc lancer un nombre arbitraire de processus possédant eux même autant de threads que souhaité.
+
+\subsection{Adressage virtuel}
+
+Dans cette partie, nous avons découvert comment marche un adressage virtuel par table des pages. Notre travail consistait à établir un lien entre les pages physiques de Nachos, et des pages virtuelles qu'on donnera aux processus, afin d'encapsuler l'allocation des pages physiques.
+\newline
+La première étape était de remplacer la fonction ReadAt qui copie le code d'un exécutable dans la mémoire physique par une fonction qui écrit ce code dans un espace d'adressage virtuel.
+\newline
+Une fois cette fonction établie, il nous était demandé de gérer le lien entre les pages physiques de Nachos et des pages virtuelles qu'on donnera aux processus.
+Nous avons créé la classe PageProvider qui mémorise les pages physiques libres et peut ainsi en proposer aux processus, tout en les masquant via des pages virtuelles. On donne ainsi aux processus des numéros de page qui ne correspondent pas aux véritables numéros des pages physiques. Le rôle de cette classe est donc de faire le lien entre les pages virtuelles et physiques, mais également de s'assurer qu'il reste assez de pages disponibles lorsqu'un processus demande de l'espace. Si l'espace disponible n'est pas suffisant, on attend qu'un processus se termine et libère ses pages. On les fournit ensuite au processus qui attend en les initialisant à 0.
+\newline
+Nous avons par la suite ajouté les méthodes de cette classe au constructeur d'addrspace, et avons testé avec divers programmes en faisant varier la stratégie d'allocation des pages.
+
+\subsection{Exécution de plusieurs programmes}
+
+
+
+\end{document}
