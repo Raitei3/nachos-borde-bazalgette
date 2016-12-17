@@ -20,6 +20,7 @@ class PageProvider:dontcopythis{
 
     BitMap * bitmap;
 
+
 };
 #endif
 #endif

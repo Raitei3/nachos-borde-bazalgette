@@ -34,7 +34,8 @@
 __start:
 	jal	main
 	move	$4,$2
-	jal	Exit	 /* if we return from main, exit(0) */
+	jal	ThreadExit	 /* if we return from main, exit(0) */
+  
 	.end __start
 
 /* -------------------------------------------------------------

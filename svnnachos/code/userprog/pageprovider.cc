@@ -14,6 +14,7 @@ BitMap * bitmap;
 
 PageProvider::PageProvider(){
   bitmap = new BitMap(NumPhysPages);
+  
 }
 
 int PageProvider::GetEmptyPage(){

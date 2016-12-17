@@ -34,9 +34,10 @@ void fork(void* arg);
 int copyStringFromMachine(int from, char *to, unsigned size);
 int copyStringToMachine(int from, char *to, unsigned size);
 
-static int nbThreadCreated=0; //variable qui nout permetront de savoir
-static int nbThreadDeleted=0;// combien de thread ont été créer et combien ont été detruit.
-static int nbFork = 0;
+static Lock * lockFork = new Lock("lockFork");
+
+int nbThreadNoyau = 1;
+int nbProcess = 1;
 
 #endif //CHANGED
 
@@ -103,15 +104,16 @@ ExceptionHandler (ExceptionType which)
         {
           //printf("je suis la");
           DEBUG ('s', "Shutdown, initiated auto\n");
-          int ret = machine -> ReadRegister(4); //on récupère la valeur de retour de main
+          int ret = machine -> ReadRegister(4);
 
-          while (nbThreadCreated!=nbThreadDeleted) {//on vérifie que tout les thread sont détruit
-            //printf("blabla");
+        /*  while (nbThreadCreated!=nbThreadDeleted) {//on vérifie que tout les thread sont détruit
             currentThread->Yield();
-          }
+          }*/
+
+
           printf("Exit(%d)\n",ret);
           //printf("%d\n",nbFork);
-          if(nbFork < 1){
+          /*if(nbFork < 1){
             quit();//fonction qui va desinstancier toute nos structure
             interrupt->Halt();
           }
@@ -119,7 +121,7 @@ ExceptionHandler (ExceptionType which)
             delete(currentThread->space);
             nbFork--;
             currentThread->Finish();
-          }
+          }*/
           break;
         }
 
@@ -206,10 +208,9 @@ ExceptionHandler (ExceptionType which)
     {
       DEBUG ('s', "call ThreadCreate.\n");
       int thread;
-      nbThreadCreated++;   // on incrémente le compteur de thread créé.
       int addrThreadExit = machine-> ReadRegister(6);  //on recupère l'adresse de ThreadExit
 
-      thread = do_ThreadCreate(machine -> ReadRegister(4),machine -> ReadRegister(5),addrThreadExit,nbThreadCreated);
+      thread = do_ThreadCreate(machine -> ReadRegister(4),machine -> ReadRegister(5),addrThreadExit);
       machine -> WriteRegister(2,thread);  // on écrit la valeur de retour de ThreadCreate
       break;
     }
@@ -217,11 +218,11 @@ ExceptionHandler (ExceptionType which)
     case SC_ThreadExit:
     {
       DEBUG ('s', "call ThreadExit.\n");
-      if(strcmp(currentThread->getName( ),"main")==0){
-        break;
+      //int ret = machine -> ReadRegister(4);
+      if(currentThread->space->nbThread == 1){
+        nbProcess--;
       }
-      nbThreadDeleted++;
-      do_ThreadExit();
+      do_ThreadExit(nbProcess);
       break;
     }
 
@@ -229,6 +230,8 @@ ExceptionHandler (ExceptionType which)
 
     case SC_ForkExec:
     {
+      //lockFork->Acquire();
+      //printf("SC_forkExec : %s\n",currentThread->getName() );
       DEBUG ('s', "call ForkExec.\n");
       int from = machine -> ReadRegister(4);
       char to[MAX_STRING_SIZE];
@@ -242,10 +245,12 @@ ExceptionHandler (ExceptionType which)
   	  printf ("Unable to open file %s\n", to);
   	  return;
         }
-
-      thread = new Thread("thread noyau");
+      nbThreadNoyau++;
+      char * s =(char*) malloc(sizeof(char)*50);
+      sprintf(s,"thread-noyau-%d",nbThreadNoyau);
+      thread = new Thread(s);
       thread->Start(fork,executable);
-      nbFork++;
+      nbProcess++;
       break;
     }
 
@@ -296,6 +301,7 @@ void fork(void* arg){
       space->InitRegisters();
       space->RestoreState();
       delete (OpenFile*)arg;
+      //lockFork->Release();
       machine->Run();
 }
 

@@ -8,6 +8,7 @@
 void func();
 
 int nbThread = 30;
+
 char a = 'A';
 
 
@@ -27,5 +28,5 @@ void func(void* c) {
   volatile int i=0;
   for (i=0; i < 3; i++)
     PutChar(*x+i);
-//  ThreadExit();
+    return 1;
 }

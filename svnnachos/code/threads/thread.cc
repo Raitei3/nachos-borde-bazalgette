@@ -47,6 +47,7 @@ Thread::Thread (const char *threadName)
     if (currentThread)
 	// Inherit space from father
 	space = currentThread->space;
+  
     else
 	space = NULL;
 
