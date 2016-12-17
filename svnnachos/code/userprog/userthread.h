@@ -17,10 +17,14 @@ typedef struct argInitThread {
   int addrThreadExit;
 } argInitThread ;
 
+//static Lock *threadExit = new Lock("threadExit");
+//static Lock *threadCreate = new Lock("threadCreate");
+static Lock * threadExit = new Lock ("threadExit");
+
 
 extern int do_ThreadCreate(int f, int arg,int arg2,int nbThreadCreated);
 void StartUserThread(void * init);
-void do_ThreadExit();
+void do_ThreadExit(int nbProcess);
 void quit();
 
 

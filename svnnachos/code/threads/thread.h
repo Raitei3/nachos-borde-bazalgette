@@ -112,20 +112,25 @@ class Thread:dontcopythis
     {
 	printf ("%s, ", name);
     }
+
+
+
 #ifdef CHANGED
+
     int getIdMap(){
       return (idMap);
     }
     void setIdMap(int id){
       idMap=id;
     }
-#endif
 
   private:
     // some of the private data for this class is listed above
-#ifdef CHANGED
+
     int idMap; //
 #endif
+
+
 
     unsigned long *stack;	// Bottom of the stack
     // NULL if this is the main thread

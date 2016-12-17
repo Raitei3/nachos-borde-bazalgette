@@ -34,9 +34,12 @@ void fork(void* arg);
 int copyStringFromMachine(int from, char *to, unsigned size);
 int copyStringToMachine(int from, char *to, unsigned size);
 
+static Lock * lockFork = new Lock("lockFork");
+
 static int nbThreadCreated=0; //variable qui nout permetront de savoir
 static int nbThreadDeleted=0;// combien de thread ont été créer et combien ont été detruit.
-static int nbFork = 0;
+int nbThreadNoyau = 1;
+int nbProcess = 1;
 
 #endif //CHANGED
 
@@ -106,12 +109,11 @@ ExceptionHandler (ExceptionType which)
           int ret = machine -> ReadRegister(4); //on récupère la valeur de retour de main
 
           while (nbThreadCreated!=nbThreadDeleted) {//on vérifie que tout les thread sont détruit
-            //printf("blabla");
             currentThread->Yield();
           }
           printf("Exit(%d)\n",ret);
           //printf("%d\n",nbFork);
-          if(nbFork < 1){
+          /*if(nbFork < 1){
             quit();//fonction qui va desinstancier toute nos structure
             interrupt->Halt();
           }
@@ -119,7 +121,7 @@ ExceptionHandler (ExceptionType which)
             delete(currentThread->space);
             nbFork--;
             currentThread->Finish();
-          }
+          }*/
           break;
         }
 
@@ -216,12 +218,15 @@ ExceptionHandler (ExceptionType which)
 
     case SC_ThreadExit:
     {
+
+      //printf("SC_ThreadExit : %s\n",currentThread->getName() );
+      //printf("%d\n",currentThread->space->nbThread );
       DEBUG ('s', "call ThreadExit.\n");
-      if(strcmp(currentThread->getName( ),"main")==0){
-        break;
+      //int ret = machine -> ReadRegister(4);
+      if(currentThread->space->nbThread == 1){
+        nbProcess--;
       }
-      nbThreadDeleted++;
-      do_ThreadExit();
+      do_ThreadExit(nbProcess);
       break;
     }
 
@@ -229,6 +234,8 @@ ExceptionHandler (ExceptionType which)
 
     case SC_ForkExec:
     {
+      //lockFork->Acquire();
+      //printf("SC_forkExec : %s\n",currentThread->getName() );
       DEBUG ('s', "call ForkExec.\n");
       int from = machine -> ReadRegister(4);
       char to[MAX_STRING_SIZE];
@@ -242,10 +249,12 @@ ExceptionHandler (ExceptionType which)
   	  printf ("Unable to open file %s\n", to);
   	  return;
         }
-
-      thread = new Thread("thread noyau");
+      nbThreadNoyau++;
+      char * s =(char*) malloc(sizeof(char)*50);
+      sprintf(s,"thread-noyau-%d",nbThreadNoyau);
+      thread = new Thread(s);
       thread->Start(fork,executable);
-      nbFork++;
+      nbProcess++;
       break;
     }
 
@@ -296,6 +305,7 @@ void fork(void* arg){
       space->InitRegisters();
       space->RestoreState();
       delete (OpenFile*)arg;
+      //lockFork->Release();
       machine->Run();
 }
 

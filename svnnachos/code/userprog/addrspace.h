@@ -20,6 +20,7 @@
 
 #ifdef CHANGED
 class Semaphore;
+class Lock;
 #endif
 
 
@@ -35,21 +36,25 @@ class AddrSpace:dontcopythis
 
     void InitRegisters ();	// Initialize user-level CPU registers,
     // before jumping to user code
-
-#ifdef CHANGED
-
-  int AllocateUserStack(int x); // return new addr stack
-  BitMap * threadBitmap;
-  void initFirstThread();
-  Semaphore *execThreadSector;
-  #endif
-
     void SaveState ();		// Save/restore address space-specific
     void RestoreState ();	// info on a context switch
-      TranslationEntry * pageTable;	// Assume linear page table translation
+    TranslationEntry * pageTable;	// Assume linear page table translation
     // for now!
     unsigned int numPages;	// Number of pages in the virtual
     // address space
+
+
+#ifdef CHANGED
+    int AllocateUserStack(int x); // return new addr stack
+    BitMap * threadBitmap;
+    void initFirstThread();
+    Semaphore *execThreadSector;
+    Lock *threadCreate;
+    int nbThread = 1;
+#endif
+
+
+
   private:
 
 };
