@@ -58,10 +58,16 @@
 
 // Thread state
 enum ThreadStatus
-{ JUST_CREATED, RUNNING, READY, BLOCKED };
+{ JUST_CREATED, RUNNING, READY, BLOCKED , A_DETRUIRE };
 
 // external function, dummy routine whose sole job is to call Thread::Print
 extern void ThreadPrint (void *arg);
+
+#ifdef CHANGED
+#include "list.h"
+class Semaphore;
+class Lock;
+#endif
 
 // The following class defines a "thread control block" -- which
 // represents a single thread of execution.
@@ -111,12 +117,22 @@ class Thread:dontcopythis
     void Print ()
     {
 	printf ("%s, ", name);
-  
+
     }
 
 
 
+
+
+
+
 #ifdef CHANGED
+    List * listSem;
+    List * listLock;
+
+    bool a_Detruire(){
+      return (status == A_DETRUIRE);
+    }
 
     int getIdMap(){
       return (idMap);

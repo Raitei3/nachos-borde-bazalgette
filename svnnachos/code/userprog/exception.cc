@@ -24,6 +24,7 @@
 #include "copyright.h"
 #include "system.h"
 #include "syscall.h"
+#include "../threads/scheduler.h"
 
 #ifdef CHANGED
 
@@ -33,11 +34,15 @@ static Lock *spaceCreate = new Lock("spaceCreate");
 void fork(void* arg);
 int copyStringFromMachine(int from, char *to, unsigned size);
 int copyStringToMachine(int from, char *to, unsigned size);
+void releaseMutex(Thread* thread);
+//int destThread(Thread * thread);
 
 static Lock * lockFork = new Lock("lockFork");
 
 int nbThreadNoyau = 1;
 int nbProcess = 1;
+int put = 0;
+
 
 #endif //CHANGED
 
@@ -104,14 +109,46 @@ ExceptionHandler (ExceptionType which)
         {
           //printf("je suis la");
           DEBUG ('s', "Shutdown, initiated auto\n");
+          IntStatus oldLevel = interrupt->SetLevel (IntOff);
+
           int ret = machine -> ReadRegister(4);
 
         /*  while (nbThreadCreated!=nbThreadDeleted) {//on vérifie que tout les thread sont détruit
             currentThread->Yield();
           }*/
 
+          if (currentThread->space->threadBitmap!=NULL){
+          //  currentThread->space->threadCreate->Acquire();
+            printf("exit : déstruction userthread : %s\n",currentThread->getName() );
 
+            int slot = currentThread->getIdMap();
+
+            for(int i =0;i<NBTHREAD;i++){
+
+              if(currentThread->space->threadMap[i]!=NULL && i != slot){
+                printf("%d\n",currentThread->space->threadMap[i]->listSem->IsEmpty() );
+                printf("%d\n",currentThread->space->threadMap[i]->listLock->IsEmpty() );
+                releaseMutex(currentThread->space->threadMap[i]);
+                currentThread->space->threadMap[i]->setStatus(A_DETRUIRE);
+                currentThread->space->execThreadSector->V();
+            //    currentThread->space->threadCreate->Release();
+              }
+            }
+            delete currentThread->space;
+            //currentThread->space->threadCreate->Release();
+          }
           printf("Exit(%d)\n",ret);
+          if (nbProcess == 1) {
+            interrupt->Halt();
+          }
+          else{
+            (void) interrupt->SetLevel (oldLevel);
+            currentThread->Finish();
+          }
+
+
+
+
           //printf("%d\n",nbFork);
           /*if(nbFork < 1){
             quit();//fonction qui va desinstancier toute nos structure
@@ -127,8 +164,13 @@ ExceptionHandler (ExceptionType which)
 
         case SC_PutChar:
         {
+          //put++;
+          //printf("entré Putchar : %s\n",currentThread->getName() );
           DEBUG ('s', "call PutChar.\n");
           synchconsole -> SynchPutChar(machine->ReadRegister(4)); //on récupère simplement le parametre de l'appel système
+        //  printf("fin Putchar : %s\n",currentThread->getName() );
+        //  put--;
+        //  printf("%d\n",put );
           break;                                                  //et on l'envoie à notre synchconsole.
         }
 
@@ -230,6 +272,7 @@ ExceptionHandler (ExceptionType which)
 
     case SC_ForkExec:
     {
+      //printf("%s\n","forkexec" );
       //lockFork->Acquire();
       //printf("SC_forkExec : %s\n",currentThread->getName() );
       DEBUG ('s', "call ForkExec.\n");
@@ -246,8 +289,9 @@ ExceptionHandler (ExceptionType which)
   	  return;
         }
       nbThreadNoyau++;
-      char * s =(char*) malloc(sizeof(char)*50);
-      sprintf(s,"thread-noyau-%d",nbThreadNoyau);
+      //char * s =(char*) malloc(sizeof(char)*50);
+      //sprintf(s,"thread-noyau-%d",nbThreadNoyau);
+      char s[50] = "thread-noyau";
       thread = new Thread(s);
       thread->Start(fork,executable);
       nbProcess++;
@@ -341,5 +385,37 @@ int copyStringToMachine(int from, char *to, unsigned size)
   }
   return i;
 }
+
+void releaseMutex(Thread* thread){
+  while (!(thread->listSem->IsEmpty())) {
+    Semaphore * s = (Semaphore *)thread->listSem->Remove();
+    printf("thread : %s release : %s\n",thread->getName(),s->getName() );
+    s->V();
+  }
+  while (!(thread->listLock->IsEmpty())) {
+    Lock * l = (Lock *)thread->listLock->Remove();
+    printf("thread : %s release : %s\n",thread->getName(),l->getName() );
+    l->Release();
+  }
+}
+
+
+
+/*int destThread(Thread * thread){
+Thread * tmpThread;
+Thread * thread2 = scheduler->FindNextToRun();
+scheduler->ReadyToRun(thread2);
+while (thread != (tmpThread = scheduler->FindNextToRun())) {
+  printf("%s\n","tamere" );
+  scheduler->ReadyToRun(tmpThread);
+  if (thread2 == tmpThread) {
+    printf("%s\n","perdu" );
+    break;
+  }
+}
+printf("%s\n","sorti" );
+delete thread;
+return 1;
+}*/
 
 #endif // CHANGED

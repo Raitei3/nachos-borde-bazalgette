@@ -73,6 +73,7 @@ Semaphore::P ()
       }
     value--;			// semaphore available,
     // consume its value
+    currentThread->listSem->Append(this);
 
     (void) interrupt->SetLevel (oldLevel);	// re-enable interrupts
 }
@@ -95,6 +96,7 @@ Semaphore::V ()
     if (thread != NULL)		// make thread ready, consuming the V immediately
 	scheduler->ReadyToRun (thread);
     value++;
+    currentThread->listSem->removeElement(this);
     (void) interrupt->SetLevel (oldLevel);
 }
 
@@ -129,6 +131,7 @@ Lock::Acquire () // P
     currentThread->Sleep();
   }
   setLock(true);
+  currentThread->listLock->Append(this);
 
   (void) interrupt->SetLevel (oldLevel);
 }
@@ -143,6 +146,7 @@ Lock::Release () // V
     scheduler->ReadyToRun (thread);
   }
   setLock(false);
+  currentThread->listLock->removeElement(this);
   (void) interrupt->SetLevel (oldLevel);
 }
 

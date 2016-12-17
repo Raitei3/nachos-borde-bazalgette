@@ -53,8 +53,7 @@ class AddrSpace:dontcopythis
     Semaphore *execThreadSector;
     Lock *threadCreate;
     int nbThread = 1;
-
-    //Thread threadMap[NBTHREAD];
+    Thread * threadMap[NBTHREAD];
 #endif
 
 

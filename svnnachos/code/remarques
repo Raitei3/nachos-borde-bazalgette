@@ -69,3 +69,11 @@ partie2: on fait un programme qui fait l'appel system forkexec.
 si j'apelle halt sa doit arreter toute la machine
 si exit juste processus doit la fermé
 on part du principe que les thread utilisateur ne feront que threadexit et pas exit
+
+
+
+
+
+gerer les erreur d'allocation de page
+
+attention au semaphore pour le exit

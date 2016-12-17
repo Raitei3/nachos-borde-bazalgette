@@ -101,6 +101,9 @@ AddrSpace::AddrSpace (OpenFile * executable)
     threadBitmap = NULL;
 
     //ASSERT(numPages<= pageProvider->NumAvailPages());
+    while (!(numPages<= pageProvider->NumAvailPages())) {
+        pageProvider->Wait();
+    }
     for (i = 0; i < numPages; i++)
       {
           int x =pageProvider->GetEmptyPage();
@@ -152,6 +155,7 @@ AddrSpace::~AddrSpace ()
   for(unsigned int i = 0; i<numPages;i++){
       pageProvider->RealeasePage(pageTable[i].physicalPage);
   }
+  pageProvider->Release();
   delete [] pageTable;
   // End of modification
 }
@@ -224,9 +228,13 @@ AddrSpace::RestoreState ()
 //initialise le main et la bitmap
 void
 AddrSpace::initFirstThread() {
-    threadBitmap = new BitMap(UserStacksAreaSize/256);
+    threadBitmap = new BitMap(NBTHREAD);
     threadBitmap->Mark(0);
     currentThread->setIdMap(0);
+    threadMap[0]=currentThread;
+    for (int i = 1; i < NBTHREAD; i++) {
+        threadMap[i] = NULL;
+    }
 }
 
 

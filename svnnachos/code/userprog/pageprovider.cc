@@ -6,20 +6,21 @@
 #include "machine.h"
 
 
-int x = 0;
+//int x = 0;
 
-Semaphore * pagesAllocation = new Semaphore("pagesAllocation",NumPhysPages);
+//Semaphore * pagesAllocation = new Semaphore("pagesAllocation",NumPhysPages);
+Semaphore * pageAllocation = new Semaphore("pageAllocation",0);
 BitMap * bitmap;
 
 
 PageProvider::PageProvider(){
   bitmap = new BitMap(NumPhysPages);
-  
+
 }
 
 int PageProvider::GetEmptyPage(){
-  pagesAllocation->P();
-  x++;
+//  pagesAllocation->P();
+//  x++;
   //printf("P : %d\n",x );
   int b = bitmap->Find();
   memset(machine->mainMemory + b*PageSize,0,PageSize);
@@ -30,14 +31,22 @@ int PageProvider::GetEmptyPage(){
 void PageProvider::RealeasePage(int i) {
   if (i <= NumPhysPages) {
     bitmap->Clear(i);
-    pagesAllocation->V();
-    x--;
+  //  pagesAllocation->V();
+  //  x--;
     //printf("V :%d\n",x );
   }
 }
 
 unsigned int PageProvider::NumAvailPages() {
   return bitmap->NumClear();
+}
+
+void PageProvider::Wait(){
+  pageAllocation->P();
+}
+
+void PageProvider::Release(){
+  pageAllocation->V();
 }
 
 #endif

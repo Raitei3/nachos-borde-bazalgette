@@ -14,13 +14,17 @@ int do_ThreadCreate(int f, int arg,int addr) {
 
   if (currentThread->space->threadBitmap == NULL){  // on regarde si la bitmap est instanciée et si ce
     currentThread->space->initFirstThread();  // n'est pas le cas on sait qu'on doit tout initialiser.
-    currentThread->space->execThreadSector = new Semaphore("execThreadSector",3);
+    currentThread->space->execThreadSector = new Semaphore("execThreadSector",NBTHREAD-1);
     currentThread->space->threadCreate = new Lock("threadCreate");
   }
+  currentThread->space->execThreadSector->P();
   currentThread->space->threadCreate -> Acquire(); //on protège avec un lock.
   //peut servir si on créé des threads en cascade.
-  nbThreadCreated++;
-  char * s =(char*) malloc(sizeof(char)*50);  sprintf(s,"UserTread-%d",nbThreadCreated); //on genère le nom du thread en utilisant nbThreadCreated
+  //printf("%s\n","threadcreate" );
+  //nbThreadCreated++;
+  //char * s =(char*) malloc(sizeof(char)*80);  sprintf(s,"%s : UserTread-%d",currentThread->getName(),nbThreadCreated); //on genère le nom du thread en utilisant nbThreadCreated
+  char s[50] = "thread-noyau";
+
   Thread * newThread = new Thread(s);
   argInitThread * init = (argInitThread *)malloc(sizeof(struct argInitThread));
   if (init==NULL || newThread==NULL){
@@ -50,14 +54,15 @@ void StartUserThread(void * init) {
                                                    //dans le registre de retour.
   free (init);
 
-  currentThread->space->execThreadSector->P();  //Le Semaphore principal qui empèche + de 4 threads d'être actifs en meme temps
+  //currentThread->space->execThreadSector->P();  //Le Semaphore principal qui empèche + de 4 threads d'être actifs en meme temps
 
   int threadSlot = currentThread->space->threadBitmap->Find();
   currentThread -> setIdMap(threadSlot);
   currentThread->space->threadBitmap->Mark(threadSlot);
+  currentThread->space->threadMap[threadSlot] = currentThread;
   machine->WriteRegister (StackReg, currentThread->space->AllocateUserStack(threadSlot));
   DEBUG ('a', "Initializing thread stack register to 0x%x\n", machine->ReadRegister(StackReg));
-
+  currentThread->space->threadCreate -> Release();
   machine->Run();
 }
 
@@ -69,10 +74,12 @@ threadExit->Acquire();
   if(currentThread->space->threadBitmap!=NULL){
 
   currentThread->space->threadBitmap->Clear(currentThread->getIdMap());
-    currentThread->space->execThreadSector->V();  //on rend un jeton : la place est desormais libre
+  currentThread->space->threadMap[currentThread->getIdMap()]=NULL;
+  currentThread->space->execThreadSector->V();  //on rend un jeton : la place est desormais libre
 }
 if(currentThread->space->nbThread == 1){
   delete currentThread->space;
+  //quit();
   //printf("Exit(%d)\n",ret );
   if (nbProcess == 0) {
     interrupt->Halt();
@@ -89,6 +96,11 @@ if(currentThread->space->nbThread == 1){
 
 // Libère les objets créés
 void quit(){
+  delete currentThread->space->execThreadSector;
+  delete currentThread->space->threadBitmap;
+  delete currentThread->space->threadCreate;
+  delete currentThread->space;
+
   //delete threadExit;
 //  delete threadCreate;
   printf("\n");

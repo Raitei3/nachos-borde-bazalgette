@@ -15,6 +15,8 @@ class PageProvider:dontcopythis{
     int GetEmptyPage();
     void RealeasePage(int i);
   unsigned int NumAvailPages();
+  void Wait();
+  void Release();
 
   private:
 
