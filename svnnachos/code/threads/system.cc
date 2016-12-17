@@ -23,6 +23,7 @@ Statistics *stats;		// performance metrics
 Timer *timer;			// the hardware timer device,
 					// for invoking context switches
 
+
 #ifdef FILESYS_NEEDED
 FileSystem *fileSystem;
 #endif
@@ -32,9 +33,10 @@ SynchDisk *synchDisk;
 #endif
 
 #ifdef USER_PROGRAM		// requires either FILESYS or FILESYS_STUB
-Machine *machine;               // user program memory and registers
+Machine *machine;            // user program memory and registers
 #ifdef CHANGED
 SynchConsole *synchconsole;
+PageProvider * pageProvider;
 #endif
 #endif
 
@@ -91,6 +93,7 @@ Initialize (int argc, char **argv)
 
 #ifdef USER_PROGRAM
     bool debugUserProg = FALSE;	// single step user program
+    pageProvider = new PageProvider();
 #endif
 #ifdef FILESYS_NEEDED
     bool format = FALSE;	// format disk
@@ -178,9 +181,12 @@ Initialize (int argc, char **argv)
 
     interrupt->Enable ();
     CallOnUserAbort (Cleanup);	// if user hits ctl-C
-
+/*#ifdef CHANGED
+  pageProvider = new PageProvider();
+#endif*/
 #ifdef USER_PROGRAM
     machine = new Machine (debugUserProg);	// this must come first
+
 #endif
 
 #ifdef FILESYS

@@ -16,9 +16,10 @@
 #include "stats.h"
 #include "timer.h"
 
+
 #ifdef CHANGED
 
-#define MAX_STRING_SIZE 10
+#define MAX_STRING_SIZE 255
 
 #endif //CHANGED
 
@@ -35,12 +36,19 @@ extern Interrupt *interrupt;	// interrupt status
 extern Statistics *stats;	// performance metrics
 extern Timer *timer;		// the hardware alarm clock
 
+/*#ifdef CHANGED
+#include "../userprog/pageprovider.h"
+
+
+#endif //CHANGED*/
 
 #ifdef USER_PROGRAM
 #include "machine.h"
 extern Machine *machine;	// user program memory and registers
 #ifdef CHANGED
 #include "synchconsole.h"
+#include "pageprovider.h"
+extern PageProvider * pageProvider;
 extern SynchConsole *synchconsole;
 #endif
 #endif

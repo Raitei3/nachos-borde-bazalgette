@@ -53,3 +53,19 @@ dans la memoire virtuelle avec writemem. Lent mais ca marche.
 action I.2 :
 on le voit à machine->memory qui est l'espace mémoire physique.
 On passe a readAt un pointeur vers cet espace.
+
+
+
+
+
+
+
+note du prof:
+quand on a page provider on va pouvoir stocker les processus a plein d'endroit
+partie2: on fait un programme qui fait l'appel system forkexec.
+1)on construit l'addresse space
+2)on créer un nouveau thread
+3)sa ressemble au tp2 pour faire le run du thread mais la on pourra appeler initregister de base car pas meme processus.
+si j'apelle halt sa doit arreter toute la machine
+si exit juste processus doit la fermé
+on part du principe que les thread utilisateur ne feront que threadexit et pas exit

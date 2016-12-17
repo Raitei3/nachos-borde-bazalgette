@@ -16,8 +16,19 @@
 #include "copyright.h"
 #include "filesys.h"
 #include "translate.h"
+#include "bitmap.h"
+
+#ifdef CHANGED
+
+
+
+class Semaphore;
+class Thread;
+#endif
+
 
 #define UserStacksAreaSize		1024	// increase this as necessary!
+#define NBTHREAD UserStacksAreaSize/256
 
 class AddrSpace:dontcopythis
 {
@@ -31,8 +42,11 @@ class AddrSpace:dontcopythis
     // before jumping to user code
 
 #ifdef CHANGED
-
+  BitMap * threadBitmap;
+  Semaphore *execThreadSector;
+  Thread * threadMap[NBTHREAD];
   int AllocateUserStack(int x); // return new addr stack
+  void initFirstThread();
 
   #endif
 
@@ -40,6 +54,8 @@ class AddrSpace:dontcopythis
     void RestoreState ();	// info on a context switch
 
   private:
+
+
       TranslationEntry * pageTable;	// Assume linear page table translation
     // for now!
     unsigned int numPages;	// Number of pages in the virtual

@@ -1,11 +1,29 @@
+
 #include "syscall.h"
+#define THIS "c"
+#define THAT "d"
 
-char c = 'A';
+const int N = 10; // Choose it large enough!
 
-int main() {
+void puts(const char * s)
+{
+  const char * p;
+  for (p = s; * p != '\0'; p++)
+  PutChar(* p);
+}
+
+void f(void * arg)
+{
+  const char* s = arg;
   int i;
-  for (i=0; i<10; i++) {
-    PutChar(c+i);
-  }
-  return 0;
+  for (i = 0; i < N; i++)
+  puts(s);
+  //ThreadExit();
+}
+
+int main()
+{
+  ThreadCreate(f, THIS);
+  f(THAT);
+  return 1;
 }

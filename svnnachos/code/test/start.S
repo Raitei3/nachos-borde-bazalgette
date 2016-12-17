@@ -34,7 +34,7 @@
 __start:
 	jal	main
 	move	$4,$2
-	jal	Exit	 /* if we return from main, exit(0) */
+	jal	ThreadExit	 /* if we return from main, exit(0) */
 	.end __start
 
 /* -------------------------------------------------------------
@@ -132,6 +132,14 @@ ThreadExit:
 	syscall
 	j	$31
         .end ThreadExit
+
+        .globl ForkExec
+        .ent ForkExec
+ForkExec:
+        addiu $2,$0,SC_ForkExec
+  syscall
+  j	$31
+        .end ForkExec
 
 
 #endif

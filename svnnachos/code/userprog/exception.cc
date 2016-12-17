@@ -29,11 +29,18 @@
 
 #include "userthread.h"
 
+
+
+void fork(void* arg);
 int copyStringFromMachine(int from, char *to, unsigned size);
 int copyStringToMachine(int from, char *to, unsigned size);
+void threadExit();
+void Exit();
 
+static Lock *spaceCreate = new Lock("spaceCreate");
 static int nbThreadCreated=0; //variable qui nout permetront de savoir
 static int nbThreadDeleted=0;// combien de thread ont été créer et combien ont été detruit.
+static int nbFork = 0;
 
 #endif //CHANGED
 
@@ -98,14 +105,7 @@ ExceptionHandler (ExceptionType which)
 
         case SC_Exit:
         {
-          DEBUG ('s', "Shutdown, initiated auto\n");
-          int ret = machine -> ReadRegister(4); //on récupère la valeur de retour de main
-          while (nbThreadCreated!=nbThreadDeleted) {//on vérifie que tout les thread sont détruit
-            currentThread->Yield();
-          }
-          quit();//fonction qui va desinstancier toute nos structure
-          printf("Exit(%d)\n",ret);
-          interrupt->Halt();
+          Exit();
           break;
         }
 
@@ -202,17 +202,43 @@ ExceptionHandler (ExceptionType which)
 
     case SC_ThreadExit:
     {
-      DEBUG ('s', "call ThreadExit.\n");
-      if(strcmp(currentThread->getName( ),"main")==0){
-        break;
-      }
-      nbThreadDeleted++;
-      do_ThreadExit();
+
+
+      threadExit();
       break;
     }
 
 
+
+    case SC_ForkExec:
+    {
+      DEBUG ('s', "call ForkExec.\n");
+      int from = machine -> ReadRegister(4);
+      char to[MAX_STRING_SIZE];
+      copyStringFromMachine(from, to , MAX_STRING_SIZE);
+      const char *to2 = to;
+      OpenFile *executable = fileSystem->Open (to2);
+      Thread *thread;
+
+      if (executable == NULL)
+        {
+  	  printf ("Unable to open file %s\n", to);
+  	  return;
+        }
+      char s[100];
+      sprintf(s,"ThreadNoyau-%d",nbFork+1);
+      thread = new Thread(s);
+      thread->Start(fork,executable);
+      nbFork++;
+
+      break;
+    }
+
   #endif //CHANGED
+
+
+
+
 
   default:
   {
@@ -225,6 +251,9 @@ ExceptionHandler (ExceptionType which)
 UpdatePC ();
 break;
 }
+
+
+
 
 case PageFaultException:
 if (!type) {
@@ -242,6 +271,93 @@ ASSERT (FALSE);
 }
 
 #ifdef CHANGED
+
+void threadExit(){
+
+  DEBUG ('s', "call ThreadExit.\n");
+  if(currentThread->space->threadBitmap==NULL && nbFork==0)
+    Exit();
+  else if (currentThread->space->threadBitmap==NULL) {
+    Exit();
+  }
+  else if(currentThread->space->threadBitmap->NumClear()==NBTHREAD-1){
+    Exit();
+  }
+  else{
+
+    do_ThreadExit();
+  }
+}
+
+void Exit (){
+  DEBUG ('s', "Shutdown, initiated auto\n");
+  int ret = machine -> ReadRegister(4); //on récupère la valeur de retour de main
+
+  if(currentThread->space->threadBitmap==NULL && nbFork==0){
+    printf("Exit(%d)\n",ret);
+    interrupt->Halt();
+  }
+
+  else if (currentThread->space->threadBitmap!=NULL){
+    int slot = currentThread->getIdMap();
+    for(int i =0;i<NBTHREAD;i++){
+      if(currentThread->space->threadMap[i]!=NULL && i != slot){
+        delete(currentThread->space->threadMap[i]);
+      }
+    }
+  }
+
+    if (nbFork<1) {
+      interrupt->Halt();
+    }
+    else{
+
+     delete(currentThread->space);
+     nbFork--;
+     currentThread->Finish();
+    }
+
+
+
+
+
+    //printf("threadExit: %s\n",currentThread->getName());
+
+
+
+
+
+
+
+
+
+
+  /*if(nbFork < 1){
+    quit();//fonction qui va desinstancier toute nos structure
+    interrupt->Halt();
+  }
+  else{
+    delete(currentThread->space);
+    nbFork--;
+    currentThread->Finish();
+  }*/
+}
+
+
+
+
+void fork(void* arg){
+      AddrSpace *space;
+      spaceCreate->Acquire();
+      space = new AddrSpace ((OpenFile*)arg);
+      spaceCreate->Release();
+      currentThread->space = space;
+      space->InitRegisters();
+      space->RestoreState();
+      delete (OpenFile*)arg;
+
+      machine->Run();
+}
 
 int copyStringFromMachine(int from, char *to, unsigned size){
 
