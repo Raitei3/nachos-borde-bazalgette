@@ -22,10 +22,10 @@ int do_ThreadCreate(int f, int arg,int addr) {
   //peut servir si on créé des threads en cascade.
   //printf("%s\n","threadcreate" );
 
-  nbThreadCreated++;
-  char * s =(char*) malloc(sizeof(char)*80);  sprintf(s,"%s->UserTread-%d",currentThread->getName(),nbThreadCreated); //on genère le nom du thread en utilisant nbThreadCreated
+  //nbThreadCreated++;
+  //char * s =(char*) malloc(sizeof(char)*80);  sprintf(s,"%s->UserTread-%d",currentThread->getName(),nbThreadCreated); //on genère le nom du thread en utilisant nbThreadCreated
 
-  //char s[50] = "thread-noyau";
+  char s[50] = "thread-noyau";
 
   Thread * newThread = new Thread(s);
   argInitThread * init = (argInitThread *)malloc(sizeof(struct argInitThread));

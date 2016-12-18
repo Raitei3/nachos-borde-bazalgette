@@ -304,10 +304,10 @@ ExceptionHandler (ExceptionType which)
         }
       nbThreadNoyau++;
 
-      char * s =(char*) malloc(sizeof(char)*50);
-      sprintf(s,"thread-noyau-%d",nbThreadNoyau);
+      //char * s =(char*) malloc(sizeof(char)*50);
+      //sprintf(s,"thread-noyau-%d",nbThreadNoyau);
 
-      //char s[50] = "thread-noyau";
+      char s[50] = "thread-noyau";
 
       thread = new Thread(s);
       thread->Start(fork,executable);

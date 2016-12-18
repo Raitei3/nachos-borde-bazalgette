@@ -28,5 +28,5 @@ void func(void* c) {
   volatile int i=0;
   for (i=0; i < 3; i++)
     PutChar(*x+i);
-  Exit(1);
+  return 1;
 }
