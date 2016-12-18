@@ -56,6 +56,8 @@ class Semaphore:dontcopythis
     void P ();			// these are the only operations on a semaphore
     void V ();			// they are both *atomic*
 
+    void printThread();
+
   private:
   //  Thread * thread;
     const char *name;		// useful for debugging
@@ -98,6 +100,7 @@ class Lock:dontcopythis
     void setThread(Thread * t){
       thread = t;
     }*/
+    void printThread();
 
 
     void Acquire ();		// these are the only operations on a lock

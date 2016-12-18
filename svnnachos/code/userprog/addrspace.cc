@@ -100,7 +100,7 @@ AddrSpace::AddrSpace (OpenFile * executable)
 
     threadBitmap = NULL;
 
-    //ASSERT(numPages<= pageProvider->NumAvailPages());
+    ASSERT(numPages<= NumPhysPages);
     while (!(numPages<= pageProvider->NumAvailPages())) {
         pageProvider->Wait();
     }
@@ -154,6 +154,7 @@ AddrSpace::~AddrSpace ()
 
   for(unsigned int i = 0; i<numPages;i++){
       pageProvider->RealeasePage(pageTable[i].physicalPage);
+
   }
   pageProvider->Release();
   delete [] pageTable;

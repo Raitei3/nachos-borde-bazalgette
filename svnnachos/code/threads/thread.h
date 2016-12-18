@@ -140,6 +140,8 @@ class Thread:dontcopythis
     void setIdMap(int id){
       idMap=id;
     }
+    //void releaseMutex(Thread* thread);
+
 
   private:
     // some of the private data for this class is listed above

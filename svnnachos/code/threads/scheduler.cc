@@ -86,9 +86,17 @@ Scheduler::ReadyToRun (Thread * thread)
 Thread *
 Scheduler::FindNextToRun ()
 {
-    if (halted)
-	return NULL;
-    return (Thread *) readyList->Remove ();
+  if (halted)
+  return NULL;
+  Thread * nextThread;
+  while(1){
+    nextThread = (Thread*)readyList->Remove();
+    if ((nextThread != NULL) && (nextThread->a_Detruire())) {
+      delete nextThread;
+    }
+    else
+    return nextThread;
+  }
 }
 
 //----------------------------------------------------------------------
@@ -108,10 +116,10 @@ Scheduler::FindNextToRun ()
 void
 Scheduler::Run (Thread * nextThread)
 {
-  if (nextThread->a_Detruire()) {
+/*  if (nextThread->a_Detruire()) {
     delete nextThread;
   }
-  else{
+  else{*/
     Thread *oldThread = currentThread;
 
     // LB: For safety...
@@ -163,7 +171,7 @@ Scheduler::Run (Thread * nextThread)
 
 #endif
 }
-}
+//}
 
 //----------------------------------------------------------------------
 // Scheduler::Print

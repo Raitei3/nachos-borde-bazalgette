@@ -21,9 +21,11 @@ int do_ThreadCreate(int f, int arg,int addr) {
   currentThread->space->threadCreate -> Acquire(); //on protège avec un lock.
   //peut servir si on créé des threads en cascade.
   //printf("%s\n","threadcreate" );
-  //nbThreadCreated++;
-  //char * s =(char*) malloc(sizeof(char)*80);  sprintf(s,"%s : UserTread-%d",currentThread->getName(),nbThreadCreated); //on genère le nom du thread en utilisant nbThreadCreated
-  char s[50] = "thread-noyau";
+
+  nbThreadCreated++;
+  char * s =(char*) malloc(sizeof(char)*80);  sprintf(s,"%s->UserTread-%d",currentThread->getName(),nbThreadCreated); //on genère le nom du thread en utilisant nbThreadCreated
+
+  //char s[50] = "thread-noyau";
 
   Thread * newThread = new Thread(s);
   argInitThread * init = (argInitThread *)malloc(sizeof(struct argInitThread));
@@ -34,6 +36,14 @@ int do_ThreadCreate(int f, int arg,int addr) {
   init ->fun = f;
   init->arg = arg;
   init->addrThreadExit = addr;
+
+
+  int threadSlot = currentThread->space->threadBitmap->Find();
+  newThread -> setIdMap(threadSlot);
+  currentThread->space->threadBitmap->Mark(threadSlot);
+  currentThread->space->threadMap[threadSlot] =newThread;
+  init->threadSlot = threadSlot;
+
   newThread->Start(StartUserThread, init);
   currentThread->space->nbThread++;
   currentThread->space->threadCreate -> Release();
@@ -52,19 +62,18 @@ void StartUserThread(void * init) {
   machine->WriteRegister (4, in->arg);
   machine->WriteRegister(31, in ->addrThreadExit); //on met l'adresse de threadExit
                                                    //dans le registre de retour.
+  int threadSlot = in->threadSlot;
   free (init);
 
   //currentThread->space->execThreadSector->P();  //Le Semaphore principal qui empèche + de 4 threads d'être actifs en meme temps
 
-  int threadSlot = currentThread->space->threadBitmap->Find();
-  currentThread -> setIdMap(threadSlot);
-  currentThread->space->threadBitmap->Mark(threadSlot);
-  currentThread->space->threadMap[threadSlot] = currentThread;
+  /* code */
   machine->WriteRegister (StackReg, currentThread->space->AllocateUserStack(threadSlot));
   DEBUG ('a', "Initializing thread stack register to 0x%x\n", machine->ReadRegister(StackReg));
   currentThread->space->threadCreate -> Release();
   machine->Run();
 }
+
 
 
 void do_ThreadExit(int nbProcess){
@@ -100,13 +109,11 @@ void quit(){
   delete currentThread->space->execThreadSector;
   delete currentThread->space->threadBitmap;
   delete currentThread->space->threadCreate;
-
 }
 delete currentThread->space;
-
+//currentThread -> finish();
   //delete threadExit;
 //  delete threadCreate;
-  printf("\n");
 }
 
 

@@ -18,9 +18,9 @@ public:
   int SynchGetChar();                 // Unix getchar(3S)
   void SynchPutString(const char * s); // Unix fputs(3S)
   void SynchGetString(char*s, int n);       // Unix fgets(3S)
-
-  private :
   Console * console;
+  private :
+
 
 };
 

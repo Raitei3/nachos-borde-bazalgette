@@ -104,10 +104,11 @@ ExceptionHandler (ExceptionType which)
 
         case SC_Exit:
         {
+
           //printf("je suis la");
           DEBUG ('s', "Shutdown, initiated auto\n");
           IntStatus oldLevel = interrupt->SetLevel (IntOff);
-
+//printf("nbprocess : %d\n",nbProcess );
           int ret = machine -> ReadRegister(4);
 
         /*  while (nbThreadCreated!=nbThreadDeleted) {//on vérifie que tout les thread sont détruit
@@ -116,32 +117,45 @@ ExceptionHandler (ExceptionType which)
 
           if (currentThread->space->threadBitmap!=NULL){
           //  currentThread->space->threadCreate->Acquire();
-            printf("exit : déstruction userthread : %s\n",currentThread->getName() );
+          //  printf("exit : déstruction userthread : %s\n",currentThread->getName() );
 
             int slot = currentThread->getIdMap();
 
             for(int i =0;i<NBTHREAD;i++){
 
               if(currentThread->space->threadMap[i]!=NULL && i != slot){
-                printf("%d\n",currentThread->space->threadMap[i]->listSem->IsEmpty() );
-                printf("%d\n",currentThread->space->threadMap[i]->listLock->IsEmpty() );
+                //printf("destruction thread %s\n",currentThread->space->threadMap[i]->getName() );
+                //printf("Sem : %d\n",currentThread->space->threadMap[i]->listSem->IsEmpty() );
+                //printf("Lock : %d\n",currentThread->space->threadMap[i]->listLock->IsEmpty() );
                 releaseMutex(currentThread->space->threadMap[i]);
                 currentThread->space->threadMap[i]->setStatus(A_DETRUIRE);
                 currentThread->space->execThreadSector->V();
             //    currentThread->space->threadCreate->Release();
               }
             }
-            delete currentThread->space;
+            nbProcess--;
             //currentThread->space->threadCreate->Release();
-          }
-          printf("Exit(%d)\n",ret);
+
+          printf("Exit(%s)\n",currentThread->getName());
+        //  printf("%d\n",pageProvider->NumAvailPages() );
           if (nbProcess == 1) {
             interrupt->Halt();
           }
           else{
+            quit();
             (void) interrupt->SetLevel (oldLevel);
+            //printf("%s\n","tamere" );
             currentThread->Finish();
           }
+        }
+        else{
+          printf("Exit(%d)\n",ret );
+          quit();
+          printf("la:%s\n",currentThread->getName() );
+          if(nbProcess==1)
+
+            interrupt->Halt();
+        }
 
 
 
@@ -256,11 +270,14 @@ ExceptionHandler (ExceptionType which)
 
     case SC_ThreadExit:
     {
+      //IntStatus oldLevel = interrupt->SetLevel (IntOff);
       DEBUG ('s', "call ThreadExit.\n");
       //int ret = machine -> ReadRegister(4);
       if(currentThread->space->nbThread == 1){
+        //printf("ThreadExit : %s",currentThread->getName());
         nbProcess--;
       }
+      //(void) interrupt->SetLevel (oldLevel);
       do_ThreadExit(nbProcess);
       break;
     }
@@ -286,9 +303,12 @@ ExceptionHandler (ExceptionType which)
   	  return;
         }
       nbThreadNoyau++;
-      //char * s =(char*) malloc(sizeof(char)*50);
-      //sprintf(s,"thread-noyau-%d",nbThreadNoyau);
-      char s[50] = "thread-noyau";
+
+      char * s =(char*) malloc(sizeof(char)*50);
+      sprintf(s,"thread-noyau-%d",nbThreadNoyau);
+
+      //char s[50] = "thread-noyau";
+
       thread = new Thread(s);
       thread->Start(fork,executable);
       nbProcess++;
@@ -386,33 +406,22 @@ int copyStringToMachine(int from, char *to, unsigned size)
 void releaseMutex(Thread* thread){
   while (!(thread->listSem->IsEmpty())) {
     Semaphore * s = (Semaphore *)thread->listSem->Remove();
-    printf("thread : %s release : %s\n",thread->getName(),s->getName() );
-    s->V();
+    //printf("thread : %s release : %s\n",thread->getName(),s->getName() );
+    //s->V();
+
+    if(strcmp(s->getName(),"write done")==0 || strcmp(s->getName(),"read avail")==0){
+      //printf("%s\n","---------------------------------------------------------" );
+      //synchconsole->console->WriteDone();
+    }
+    else{
+      s->V();
+    }
   }
   while (!(thread->listLock->IsEmpty())) {
     Lock * l = (Lock *)thread->listLock->Remove();
-    printf("thread : %s release : %s\n",thread->getName(),l->getName() );
+  //  printf("thread : %s release : %s\n",thread->getName(),l->getName() );
     l->Release();
   }
 }
-
-
-
-/*int destThread(Thread * thread){
-Thread * tmpThread;
-Thread * thread2 = scheduler->FindNextToRun();
-scheduler->ReadyToRun(thread2);
-while (thread != (tmpThread = scheduler->FindNextToRun())) {
-  printf("%s\n","tamere" );
-  scheduler->ReadyToRun(tmpThread);
-  if (thread2 == tmpThread) {
-    printf("%s\n","perdu" );
-    break;
-  }
-}
-printf("%s\n","sorti" );
-delete thread;
-return 1;
-}*/
 
 #endif // CHANGED

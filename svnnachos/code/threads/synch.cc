@@ -24,6 +24,7 @@
 #include "copyright.h"
 #include "synch.h"
 #include "system.h"
+#include "thread.h"
 
 //----------------------------------------------------------------------
 // Semaphore::Semaphore
@@ -94,9 +95,11 @@ Semaphore::V ()
 
     thread = (Thread *) queue->Remove ();
     if (thread != NULL)		// make thread ready, consuming the V immediately
+
 	scheduler->ReadyToRun (thread);
     value++;
     currentThread->listSem->removeElement(this);
+    //printThread();
     (void) interrupt->SetLevel (oldLevel);
 }
 
@@ -105,6 +108,36 @@ Semaphore::V ()
 // the test case in the network assignment won't work!
 
 #ifdef CHANGED
+void
+Semaphore::printThread(){
+    Thread * thread1 = (Thread *)queue->Remove();
+    queue->Append(thread1);
+    Thread * thread2 = (Thread *)queue->Remove();
+    while (thread1 != thread2) {
+        if (thread2 != NULL)
+printf("lock : %s thread : %s\n",this->getName(),thread2->getName());
+        queue->Append(thread2);
+        thread2 = (Thread *)queue->Remove();
+        printf("%s\n","tamere" );
+    }
+    if (thread1 != NULL)
+    printf("lock : %s thread : %s\n",this->getName(),thread1->getName() );
+}
+void
+Lock::printThread(){
+    Thread * thread1 = (Thread *)queue->Remove();
+    queue->Append(thread1);
+    Thread * thread2 = (Thread *)queue->Remove();
+    while (thread1 != thread2) {
+        if (thread2 != NULL)
+        printf("lock : %s thread : %s\n",this->getName(),thread2->getName());
+        queue->Append(thread2);
+        thread2 = (Thread *)queue->Remove();
+        printf("%s\n","tamere" );
+    }
+    if (thread1 != NULL)
+    printf("lock : %s thread : %s\n",this->getName(),thread1->getName() );
+}
 
 Lock::Lock (const char *debugName)
 {
@@ -147,6 +180,7 @@ Lock::Release () // V
   }
   setLock(false);
   currentThread->listLock->removeElement(this);
+  //printThread();
   (void) interrupt->SetLevel (oldLevel);
 }
 

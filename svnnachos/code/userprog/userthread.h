@@ -15,6 +15,7 @@ typedef struct argInitThread {
   int fun;
   int arg;
   int addrThreadExit;
+  int threadSlot;
 } argInitThread ;
 
 //static Lock *threadExit = new Lock("threadExit");

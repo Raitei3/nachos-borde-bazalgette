@@ -78,6 +78,8 @@ Thread::~Thread ()
     DEBUG ('t', "Deleting thread \"%s\"\n", name);
 
     ASSERT (this != currentThread);
+
+//    releaseMutex(this);
     delete listSem;
     delete listLock;
     if (stack != NULL) {
@@ -418,3 +420,27 @@ Thread::RestoreUserState ()
 	machine->WriteRegister (i, userRegisters[i]);
 }
 #endif
+/*#ifdef CHANGED
+void
+Thread::releaseMutex(Thread* thread){
+  while (!(thread->listSem->IsEmpty())) {
+    Semaphore * s = (Semaphore *)thread->listSem->Remove();
+    //printf("thread : %s release : %s\n",thread->getName(),s->getName() );
+    //s->V();
+
+    if(strcmp(s->getName(),"write done")==0){
+      //printf("%s\n","---------------------------------------------------------" );
+      //synchconsole->console->WriteDone();
+    }
+    else{
+      s->V();
+    }
+  }
+  while (!(thread->listLock->IsEmpty())) {
+    Lock * l = (Lock *)thread->listLock->Remove();
+  //  printf("thread : %s release : %s\n",thread->getName(),l->getName() );
+    l->Release();
+  }
+}
+
+#endif*/
