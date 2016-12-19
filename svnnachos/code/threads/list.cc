@@ -167,6 +167,10 @@ List::IsEmpty ()
 	return FALSE;
 }
 
+/**
+  *enleve de la liste l'élément passait en parametre si il y est.
+ */
+
 void
 List::removeElement(void * Item){
     if(IsEmpty())

@@ -374,7 +374,8 @@ void releaseMutex(Thread* thread){
   while (!(thread->listSem->IsEmpty())) {
     Semaphore * s = (Semaphore *)thread->listSem->Remove();
 
-    if(strcmp(s->getName(),"write done")==0 || strcmp(s->getName(),"read avail")==0){
+    if(strcmp(s->getName(),"write done")==0 || strcmp(s->getName(),"read avail")==0 ){
+      //printf("release : %s\n",currentThread->getName());
     }
     else{
       s->V();
