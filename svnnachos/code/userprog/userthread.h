@@ -7,8 +7,8 @@
 
 
 
-//#ifndef USERTHREAD_H
-//#define USERTHREAD_H
+#ifndef USERTHREAD_H
+#define USERTHREAD_H
 
 
 typedef struct argInitThread {
@@ -18,11 +18,7 @@ typedef struct argInitThread {
   int threadSlot;
 } argInitThread ;
 
-//static Lock *threadExit = new Lock("threadExit");
-//static Lock *threadCreate = new Lock("threadCreate");
 static Lock * threadExit = new Lock ("threadExit");
-
-
 
 extern int do_ThreadCreate(int f, int arg,int arg2);
 void StartUserThread(void * init);
@@ -30,6 +26,6 @@ void do_ThreadExit(int nbProcess);
 void quit();
 
 
-//#endif // USERTHREAD_H
+#endif // USERTHREAD_H
 
 #endif // CHANGED

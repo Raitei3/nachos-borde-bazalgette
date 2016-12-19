@@ -56,7 +56,6 @@ class Semaphore:dontcopythis
     void P ();			// these are the only operations on a semaphore
     void V ();			// they are both *atomic*
 
-    void printThread();
 
   private:
   //  Thread * thread;

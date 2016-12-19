@@ -10,17 +10,14 @@ int nbThreadCreated = 0;
 
 int do_ThreadCreate(int f, int arg,int addr) {
 
-
-
   if (currentThread->space->threadBitmap == NULL){  // on regarde si la bitmap est instanciée et si ce
     currentThread->space->initFirstThread();  // n'est pas le cas on sait qu'on doit tout initialiser.
     currentThread->space->execThreadSector = new Semaphore("execThreadSector",NBTHREAD-1);
     currentThread->space->threadCreate = new Lock("threadCreate");
   }
-  currentThread->space->execThreadSector->P();
+  currentThread->space->execThreadSector->P(); //Le Semaphore principal qui empèche + de 4 threads d'être actifs en meme temps
   currentThread->space->threadCreate -> Acquire(); //on protège avec un lock.
   //peut servir si on créé des threads en cascade.
-  //printf("%s\n","threadcreate" );
 
   //nbThreadCreated++;
   //char * s =(char*) malloc(sizeof(char)*80);  sprintf(s,"%s->UserTread-%d",currentThread->getName(),nbThreadCreated); //on genère le nom du thread en utilisant nbThreadCreated
@@ -40,13 +37,13 @@ int do_ThreadCreate(int f, int arg,int addr) {
 
   int threadSlot = currentThread->space->threadBitmap->Find();
   newThread -> setIdMap(threadSlot);
-  currentThread->space->threadBitmap->Mark(threadSlot);
-  currentThread->space->threadMap[threadSlot] =newThread;
+  currentThread->space->threadBitmap->Mark(threadSlot); // on marque la bitmap
+  currentThread->space->threadMap[threadSlot] =newThread; // on met le thread dans le tableau
   init->threadSlot = threadSlot;
 
   newThread->Start(StartUserThread, init);
   currentThread->space->nbThread++;
-  currentThread->space->threadCreate -> Release();
+
   return 0;
 }
 
@@ -65,7 +62,6 @@ void StartUserThread(void * init) {
   int threadSlot = in->threadSlot;
   free (init);
 
-  //currentThread->space->execThreadSector->P();  //Le Semaphore principal qui empèche + de 4 threads d'être actifs en meme temps
 
   /* code */
   machine->WriteRegister (StackReg, currentThread->space->AllocateUserStack(threadSlot));
@@ -87,17 +83,13 @@ threadExit->Acquire();
   currentThread->space->execThreadSector->V();  //on rend un jeton : la place est desormais libre
 }
 if(currentThread->space->nbThread == 1){
-  //delete currentThread->space;
   quit();
-  //printf("Exit(%d)\n",ret );
   if (nbProcess == 0) {
     interrupt->Halt();
   }
 }
   currentThread->space->nbThread--;
-
   threadExit->Release();
-  //printf("do_ThreadExit : %s\n",currentThread->getName() );
   currentThread->Finish();
 }
 
@@ -111,9 +103,6 @@ void quit(){
   delete currentThread->space->threadCreate;
 }
 delete currentThread->space;
-//currentThread -> finish();
-  //delete threadExit;
-//  delete threadCreate;
 }
 
 

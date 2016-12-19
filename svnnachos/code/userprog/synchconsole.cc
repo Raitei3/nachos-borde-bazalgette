@@ -19,7 +19,6 @@ static void ReadAvailHandler(void*arg)
 
 static void WriteDoneHandler(void*arg)
 {
-  //printf("writeDone : %s\n",currentThread->getName() );
   (void) arg; writeDone->V();
 }
 
@@ -49,10 +48,8 @@ SynchConsole::~SynchConsole()
 void SynchConsole::SynchPutChar(int ch)
 {
   criticalPutChar -> Acquire();
-  //printf("Debut SynchputCHar : %s\n",currentThread->getName() );
   console -> PutChar(ch);
   writeDone -> P();
-  //printf("Fin SynchputCHar : %s\n",currentThread->getName() );
   criticalPutChar -> Release();
 }
 

@@ -3,7 +3,6 @@
 #define PAGEPROVIDER_H
 
 #include "bitmap.h"
-//#include "syscall.h"
 #include "system.h"
 #include "synch.h"
 

@@ -48,12 +48,12 @@ class AddrSpace:dontcopythis
 
 #ifdef CHANGED
     int AllocateUserStack(int x); // return new addr stack
-    BitMap * threadBitmap;
+    BitMap * threadBitmap;      //La bitmap d'allocation de la pile des threads
     void initFirstThread();
-    Semaphore *execThreadSector;
-    Lock *threadCreate;
-    int nbThread = 1;
-    Thread * threadMap[NBTHREAD];
+    Semaphore *execThreadSector;  //le semaphore qui permet de ne pas lancer trop de thread
+    Lock *threadCreate;         // le lock qui permet de ne créer les thread que un par un
+    int nbThread = 1;           // Nombre de thread sur ce processus
+    Thread * threadMap[NBTHREAD]; // tableau de pointeur vers les autre thread de ce processus.
 #endif
 
 

@@ -5,10 +5,6 @@
 #include "syscall.h"
 #include "machine.h"
 
-
-//int x = 0;
-
-//Semaphore * pagesAllocation = new Semaphore("pagesAllocation",NumPhysPages);
 Semaphore * pageAllocation = new Semaphore("pageAllocation",0);
 BitMap * bitmap;
 
@@ -19,21 +15,15 @@ PageProvider::PageProvider(){
 }
 
 int PageProvider::GetEmptyPage(){
-//  pagesAllocation->P();
-//  x++;
-  //printf("P : %d\n",x );
+
   int b = bitmap->Find();
   memset(machine->mainMemory + b*PageSize,0,PageSize);
-  //printf("%d\n",b );
   return b;
 }
 
 void PageProvider::RealeasePage(int i) {
   if (i <= NumPhysPages) {
     bitmap->Clear(i);
-  //  pagesAllocation->V();
-  //  x--;
-    //printf("V :%d\n",x );
   }
 }
 

@@ -204,9 +204,7 @@ void
 Console::PutChar(int ch)
 {
     unsigned char c;
-    //printf("\n%d : %s\n",putBusy,currentThread->getName() );
     ASSERT(putBusy == FALSE);
-    //putBusy=FALSE;
     if (ch < 0x80 || strcmp(nl_langinfo(CODESET),"UTF-8")) {
 	/* Not UTF-8 or ASCII, assume 8bit locale */
 	c = ch;

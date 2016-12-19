@@ -74,7 +74,7 @@ Semaphore::P ()
       }
     value--;			// semaphore available,
     // consume its value
-    currentThread->listSem->Append(this);
+    currentThread->listSem->Append(this);// ajoute le mutex dans la liste des thread tenu par le mutex
 
     (void) interrupt->SetLevel (oldLevel);	// re-enable interrupts
 }
@@ -98,8 +98,7 @@ Semaphore::V ()
 
 	scheduler->ReadyToRun (thread);
     value++;
-    currentThread->listSem->removeElement(this);
-    //printThread();
+    currentThread->listSem->removeElement(this); // enleve le thread qui sort du mutex
     (void) interrupt->SetLevel (oldLevel);
 }
 
@@ -108,36 +107,6 @@ Semaphore::V ()
 // the test case in the network assignment won't work!
 
 #ifdef CHANGED
-void
-Semaphore::printThread(){
-    Thread * thread1 = (Thread *)queue->Remove();
-    queue->Append(thread1);
-    Thread * thread2 = (Thread *)queue->Remove();
-    while (thread1 != thread2) {
-        if (thread2 != NULL)
-printf("lock : %s thread : %s\n",this->getName(),thread2->getName());
-        queue->Append(thread2);
-        thread2 = (Thread *)queue->Remove();
-        printf("%s\n","tamere" );
-    }
-    if (thread1 != NULL)
-    printf("lock : %s thread : %s\n",this->getName(),thread1->getName() );
-}
-void
-Lock::printThread(){
-    Thread * thread1 = (Thread *)queue->Remove();
-    queue->Append(thread1);
-    Thread * thread2 = (Thread *)queue->Remove();
-    while (thread1 != thread2) {
-        if (thread2 != NULL)
-        printf("lock : %s thread : %s\n",this->getName(),thread2->getName());
-        queue->Append(thread2);
-        thread2 = (Thread *)queue->Remove();
-        printf("%s\n","tamere" );
-    }
-    if (thread1 != NULL)
-    printf("lock : %s thread : %s\n",this->getName(),thread1->getName() );
-}
 
 Lock::Lock (const char *debugName)
 {
@@ -180,7 +149,6 @@ Lock::Release () // V
   }
   setLock(false);
   currentThread->listLock->removeElement(this);
-  //printThread();
   (void) interrupt->SetLevel (oldLevel);
 }
 
