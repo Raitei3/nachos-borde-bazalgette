@@ -79,8 +79,6 @@ Thread::~Thread ()
 
     ASSERT (this != currentThread);
 
-//    releaseMutex(this);
-    //free((void*)name);
     delete listSem;
     delete listLock;
     if (stack != NULL) {

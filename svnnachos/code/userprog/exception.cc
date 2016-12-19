@@ -116,8 +116,7 @@ ExceptionHandler (ExceptionType which)
 
               if(currentThread->space->threadMap[i]!=NULL && i != slot){
                 releaseMutex(currentThread->space->threadMap[i]);
-                currentThread->space->threadMap[i]->setStatus(A_DETRUIRE);
-                currentThread->space->execThreadSector->V();
+                currentThread->space->threadMap[i]->setStatus(A_DETRUIRE);// on met le status sur a_detruie désormais interpréter par l'ordonanceur
               }
             }
             nbProcess--;
