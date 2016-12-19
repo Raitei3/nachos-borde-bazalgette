@@ -116,7 +116,7 @@ ExceptionHandler (ExceptionType which)
 
               if(currentThread->space->threadMap[i]!=NULL && i != slot){
                 releaseMutex(currentThread->space->threadMap[i]);
-                currentThread->space->threadMap[i]->setStatus(A_DETRUIRE);// on met le status sur a_detruie désormais interpréter par l'ordonanceur
+                currentThread->space->threadMap[i]->setStatus(A_DETRUIRE);// on met le status sur a_detruire désormais interprété par l'ordonnanceur
               }
             }
             nbProcess--;
@@ -262,7 +262,7 @@ ExceptionHandler (ExceptionType which)
   	  return;
         }
       nbThreadNoyau++;
-      /** ce code pêrmet de bien donner des nom différent mais on arrive pas a éviter les fuite memoire*/
+      /** les 2 lignes suivantes permettent de donner des noms différents mais on n'arrive pas à éviter les fuites memoire*/
       //char * s =(char*) malloc(sizeof(char)*50);
       //sprintf(s,"thread-noyau-%d",nbThreadNoyau);
 
@@ -325,7 +325,6 @@ void fork(void* arg){
       space->InitRegisters();
       space->RestoreState();
       delete (OpenFile*)arg;
-      //lockFork->Release();
       machine->Run();
 }
 
@@ -367,7 +366,7 @@ int copyStringToMachine(int from, char *to, unsigned size)
 }
 
 /**
-  *Fonction qui se charge de parcourir la liste de thread qui ont prit des mutex et les libére
+  *Fonction qui se charge de parcourir la liste de threads qui ont pris des mutexs et les libère
   */
 
 void releaseMutex(Thread* thread){
@@ -375,7 +374,6 @@ void releaseMutex(Thread* thread){
     Semaphore * s = (Semaphore *)thread->listSem->Remove();
 
     if(strcmp(s->getName(),"write done")==0 || strcmp(s->getName(),"read avail")==0 ){
-      //printf("release : %s\n",currentThread->getName());
     }
     else{
       s->V();

@@ -168,7 +168,7 @@ List::IsEmpty ()
 }
 
 /**
-  *enleve de la liste l'élément passait en parametre si il y est.
+  *enlève de la liste l'élément passé en parametre si il y est.
  */
 
 void
