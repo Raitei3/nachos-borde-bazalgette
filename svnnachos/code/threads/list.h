@@ -54,7 +54,7 @@ class List:dontcopythis
     void Mapcar (VoidFunctionPtr func);	// Apply "func" to every element
     // on the list
     bool IsEmpty ();		// is the list empty?
-    void removeElement(void * Item); // enleve l'élément passer en parametre
+    void removeElement(void * Item); // enlève l'élément passé en parametre
 
 
     // Routines to put/get items on/off list in order (sorted by key)

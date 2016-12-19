@@ -74,7 +74,7 @@ Semaphore::P ()
       }
     value--;			// semaphore available,
     // consume its value
-    currentThread->listSem->Append(this);// ajoute le mutex dans la liste des thread tenu par le mutex
+    currentThread->listSem->Append(this); // ajoute le mutex dans la liste des threads tenus par le mutex
 
     (void) interrupt->SetLevel (oldLevel);	// re-enable interrupts
 }
@@ -98,7 +98,7 @@ Semaphore::V ()
 
 	scheduler->ReadyToRun (thread);
     value++;
-    currentThread->listSem->removeElement(this); // enleve le thread qui sort du mutex
+    currentThread->listSem->removeElement(this); // enlève le thread qui sort du mutex
     (void) interrupt->SetLevel (oldLevel);
 }
 
@@ -125,7 +125,7 @@ void
 Lock::Acquire () // P
 {
 
-  IntStatus oldLevel = interrupt->SetLevel (IntOff); // peut etre le laisser
+  IntStatus oldLevel = interrupt->SetLevel (IntOff);
 
   threadName = currentThread->getName();
   while(isLocked() == true) {

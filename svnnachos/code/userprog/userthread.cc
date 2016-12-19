@@ -62,8 +62,6 @@ void StartUserThread(void * init) {
   int threadSlot = in->threadSlot;
   free (init);
 
-
-  /* code */
   machine->WriteRegister (StackReg, currentThread->space->AllocateUserStack(threadSlot));
   DEBUG ('a', "Initializing thread stack register to 0x%x\n", machine->ReadRegister(StackReg));
   currentThread->space->threadCreate -> Release();
