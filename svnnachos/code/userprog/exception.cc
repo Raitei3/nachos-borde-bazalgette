@@ -105,46 +105,30 @@ ExceptionHandler (ExceptionType which)
         case SC_Exit:
         {
 
-          //printf("je suis la");
           DEBUG ('s', "Shutdown, initiated auto\n");
-          IntStatus oldLevel = interrupt->SetLevel (IntOff);
-//printf("nbprocess : %d\n",nbProcess );
+          IntStatus oldLevel = interrupt->SetLevel (IntOff);// on bloque les interruptions
           int ret = machine -> ReadRegister(4);
 
-        /*  while (nbThreadCreated!=nbThreadDeleted) {//on vérifie que tout les thread sont détruit
-            currentThread->Yield();
-          }*/
-
           if (currentThread->space->threadBitmap!=NULL){
-          //  currentThread->space->threadCreate->Acquire();
-          //  printf("exit : déstruction userthread : %s\n",currentThread->getName() );
-
             int slot = currentThread->getIdMap();
 
             for(int i =0;i<NBTHREAD;i++){
 
               if(currentThread->space->threadMap[i]!=NULL && i != slot){
-                //printf("destruction thread %s\n",currentThread->space->threadMap[i]->getName() );
-                //printf("Sem : %d\n",currentThread->space->threadMap[i]->listSem->IsEmpty() );
-                //printf("Lock : %d\n",currentThread->space->threadMap[i]->listLock->IsEmpty() );
-                releaseMutex(currentThread->space->threadMap[i]);
-                currentThread->space->threadMap[i]->setStatus(A_DETRUIRE);
-                currentThread->space->execThreadSector->V();
-            //    currentThread->space->threadCreate->Release();
+                releaseMutex(currentThread->space->threadMap[i]);//fonction qui relache les mutex au fur et a mesure
+                currentThread->space->threadMap[i]->setStatus(A_DETRUIRE);//on lui donne le status a detruire
               }
             }
             nbProcess--;
-            //currentThread->space->threadCreate->Release();
-
-          printf("Exit(%s)\n",currentThread->getName());
-        //  printf("%d\n",pageProvider->NumAvailPages() );
           if (nbProcess == 1) {
-            interrupt->Halt();
+            printf("Exit(%d)\n",ret );
+            quit();
+            interrupt->Halt(); //si dernier processus
           }
           else{
+            printf("Exit(%d)\n",ret );
             quit();
             (void) interrupt->SetLevel (oldLevel);
-            //printf("%s\n","tamere" );
             currentThread->Finish();
           }
         }
@@ -156,33 +140,16 @@ ExceptionHandler (ExceptionType which)
 
             interrupt->Halt();
         }
-
-
-
-
-          //printf("%d\n",nbFork);
-          /*if(nbFork < 1){
-            quit();//fonction qui va desinstancier toute nos structure
-            interrupt->Halt();
-          }
-          else{
-            delete(currentThread->space);
-            nbFork--;
-            currentThread->Finish();
-          }*/
           break;
         }
 
         case SC_PutChar:
         {
-          //put++;
-          //printf("entré Putchar : %s\n",currentThread->getName() );
+
           DEBUG ('s', "call PutChar.\n");
           synchconsole -> SynchPutChar(machine->ReadRegister(4)); //on récupère simplement le parametre de l'appel système
-        //  printf("fin Putchar : %s\n",currentThread->getName() );
-        //  put--;
-        //  printf("%d\n",put );
-          break;                                                  //et on l'envoie à notre synchconsole.
+                                          //et on l'envoie à notre synchconsole.
+          break;
         }
 
         case SC_GetChar:
@@ -270,25 +237,17 @@ ExceptionHandler (ExceptionType which)
 
     case SC_ThreadExit:
     {
-      //IntStatus oldLevel = interrupt->SetLevel (IntOff);
       DEBUG ('s', "call ThreadExit.\n");
-      //int ret = machine -> ReadRegister(4);
       if(currentThread->space->nbThread == 1){
-        //printf("ThreadExit : %s",currentThread->getName());
         nbProcess--;
       }
-      //(void) interrupt->SetLevel (oldLevel);
       do_ThreadExit(nbProcess);
       break;
     }
 
 
-
     case SC_ForkExec:
     {
-      //printf("%s\n","forkexec" );
-      //lockFork->Acquire();
-      //printf("SC_forkExec : %s\n",currentThread->getName() );
       DEBUG ('s', "call ForkExec.\n");
       int from = machine -> ReadRegister(4);
       char to[MAX_STRING_SIZE];
@@ -302,12 +261,10 @@ ExceptionHandler (ExceptionType which)
   	  printf ("Unable to open file %s\n", to);
   	  return;
         }
+
       nbThreadNoyau++;
-
-      //char * s =(char*) malloc(sizeof(char)*50);
-      //sprintf(s,"thread-noyau-%d",nbThreadNoyau);
-
-      char s[50] = "thread-noyau";
+      char * s =(char*) malloc(sizeof(char)*50);
+      sprintf(s,"thread-noyau-%d",nbThreadNoyau);
 
       thread = new Thread(s);
       thread->Start(fork,executable);
@@ -353,6 +310,11 @@ ASSERT (FALSE);
 
 #ifdef CHANGED
 
+
+/**
+  *Fonction qui initialise l'addrspace du nouveau nbThreadNoyau
+  */
+
 void fork(void* arg){
       AddrSpace *space;
       spaceCreate->Acquire();
@@ -362,7 +324,6 @@ void fork(void* arg){
       space->InitRegisters();
       space->RestoreState();
       delete (OpenFile*)arg;
-      //lockFork->Release();
       machine->Run();
 }
 
