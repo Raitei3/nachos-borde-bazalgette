@@ -120,8 +120,6 @@ ExceptionHandler (ExceptionType which)
               }
             }
             nbProcess--;
-
-          printf("Exit(%s)\n",currentThread->getName());
           if (nbProcess == 1) {
             printf("Exit(%d)\n",ret );
             interrupt->Halt();
@@ -146,14 +144,10 @@ ExceptionHandler (ExceptionType which)
 
         case SC_PutChar:
         {
-          //put++;
-          //printf("entré Putchar : %s\n",currentThread->getName() );
           DEBUG ('s', "call PutChar.\n");
           synchconsole -> SynchPutChar(machine->ReadRegister(4)); //on récupère simplement le parametre de l'appel système
-        //  printf("fin Putchar : %s\n",currentThread->getName() );
-        //  put--;
-        //  printf("%d\n",put );
-          break;                                                  //et on l'envoie à notre synchconsole.
+                                                                  //et on l'envoie à notre synchconsole.
+          break;
         }
 
         case SC_GetChar:
@@ -241,14 +235,10 @@ ExceptionHandler (ExceptionType which)
 
     case SC_ThreadExit:
     {
-      //IntStatus oldLevel = interrupt->SetLevel (IntOff);
       DEBUG ('s', "call ThreadExit.\n");
-      //int ret = machine -> ReadRegister(4);
       if(currentThread->space->nbThread == 1){
-        //printf("ThreadExit : %s",currentThread->getName());
         nbProcess--;
       }
-      //(void) interrupt->SetLevel (oldLevel);
       do_ThreadExit(nbProcess);
       break;
     }
@@ -257,9 +247,7 @@ ExceptionHandler (ExceptionType which)
 
     case SC_ForkExec:
     {
-      //printf("%s\n","forkexec" );
-      //lockFork->Acquire();
-      //printf("SC_forkExec : %s\n",currentThread->getName() );
+
       DEBUG ('s', "call ForkExec.\n");
       int from = machine -> ReadRegister(4);
       char to[MAX_STRING_SIZE];
@@ -274,7 +262,7 @@ ExceptionHandler (ExceptionType which)
   	  return;
         }
       nbThreadNoyau++;
-
+      /** ce code pêrmet de bien donner des nom différent mais on arrive pas a éviter les fuite memoire*/
       //char * s =(char*) malloc(sizeof(char)*50);
       //sprintf(s,"thread-noyau-%d",nbThreadNoyau);
 
@@ -323,6 +311,10 @@ ASSERT (FALSE);
 }
 
 #ifdef CHANGED
+
+/**
+  *Fonction qui initialise la nouvelle addrspace du nouveau processus
+  */
 
 void fork(void* arg){
       AddrSpace *space;
@@ -374,15 +366,15 @@ int copyStringToMachine(int from, char *to, unsigned size)
   return i;
 }
 
+/**
+  *Fonction qui se charge de parcourir la liste de thread qui ont prit des mutex et les libére
+  */
+
 void releaseMutex(Thread* thread){
   while (!(thread->listSem->IsEmpty())) {
     Semaphore * s = (Semaphore *)thread->listSem->Remove();
-    //printf("thread : %s release : %s\n",thread->getName(),s->getName() );
-    //s->V();
 
     if(strcmp(s->getName(),"write done")==0 || strcmp(s->getName(),"read avail")==0){
-      //printf("%s\n","---------------------------------------------------------" );
-      //synchconsole->console->WriteDone();
     }
     else{
       s->V();
@@ -390,7 +382,6 @@ void releaseMutex(Thread* thread){
   }
   while (!(thread->listLock->IsEmpty())) {
     Lock * l = (Lock *)thread->listLock->Remove();
-  //  printf("thread : %s release : %s\n",thread->getName(),l->getName() );
     l->Release();
   }
 }
